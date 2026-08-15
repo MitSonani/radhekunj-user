@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ShopFront — User Panel
 
-## Getting Started
+ShopFront is the customer-facing frontend user interface for a production e-commerce application. It handles product browsing, cart interactions, checkout flows, order history, and account profile management by consuming REST API endpoints from the central Backend service.
 
-First, run the development server:
+## Technology Stack
 
+- **Framework**: [Next.js](https://nextjs.org/) (v16 App Router)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **Code Style**: [Prettier](https://prettier.io/) & [ESLint](https://eslint.org/)
+- **Package Manager**: `npm`
+
+## Requirements
+
+- **Node.js**: `20.x (LTS)` or higher
+- **npm**: v10 or higher
+
+## Installation
+
+1. Clone the repository and navigate to the directory:
+   ```bash
+   cd user-frontend
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+## Environment Variables
+
+Copy the template env file:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Define the variables in your `.env.local`:
+- `NEXT_PUBLIC_API_URL`: The absolute URL of the backend HTTP API server (e.g., `http://localhost:5000/api/v1`).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+*Note: Never place private backend secrets or credentials in browser-accessible environment variables.*
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Development & Build Commands
 
-## Learn More
+| Command | Action |
+|:---|:---|
+| `npm run dev` | Starts the Next.js local development server |
+| `npm run build` | Compiles the production build (using Turbopack compiler) |
+| `npm run start` | Runs the compiled production server locally |
+| `npm run lint` | Inspects the codebase for ESLint violations |
+| `npx prettier --check .` | Checks files formatting consistency |
+| `npx prettier --write .` | Automatically formats files using Prettier |
 
-To learn more about Next.js, take a look at the following resources:
+## Project Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```text
+src/
+├── app/
+│   ├── layout.tsx            # Main root layout (Header, Main container, Footer)
+│   ├── page.tsx              # Landing homepage view
+│   └── globals.css           # Global Tailwind and base theme configurations
+├── components/
+│   ├── layout/               # Structural elements (Header, Footer, PageContainer)
+│   └── common/               # Reusable UX controls (Button, Input, Loader, Error, Empty states)
+├── hooks/                    # Reusable client hooks (e.g., useApi state wrapper)
+├── services/
+│   └── api/                  # API fetch clients (apiClient.ts, options config)
+├── lib/                      # Standard utility wrappers (cn tailwind-merge helper)
+├── types/                    # Common TypeScript type interfaces (API payloads, errors)
+├── constants/                # Paths, endpoints and UI limits
+└── config/                   # Defensive env configs
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Architectural Guidelines
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **API Communications**: The User Panel must only communicate with the backend using the central `apiClient`. Direct database connections or logic redundancy (like recalculating prices or tax) are prohibited.
+2. **UI Consistency**: Reuse the design tokens and layout containers defined in `globals.css` and `components/`. Do not introduce styling fragments on individual views.
+3. **Accessibility (a11y)**: Use semantic HTML layout structures, label form inputs, and provide focus-visible rings for keyboard users.
+# radhekunj-user

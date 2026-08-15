@@ -1,26 +1,130 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  /* Aura Brand Premium Green & Warm Cream Color Tokens */
+  --color-primary-base: #164a35;
+  --color-primary-dark-base: #0f3326;
+  --color-primary-medium-base: #28624a;
+  --color-green-soft-base: #ddebe3;
+  --color-green-light-base: #f0f6f2;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --background: #faf9f5; /* Warm Cream Primary BG */
+  --foreground: #1c2822; /* Primary Text */
+
+  --card-bg: #ffffff; /* White Card BG */
+  --card-border: #dde3de; /* Border */
+  --card-border-soft: #e8ece8; /* Soft Border */
+
+  --input-bg: #ffffff;
+  --input-border: #dde3de;
+  --input-focus: #164a35;
+
+  --muted-text: #7a837e; /* Muted Text */
+  --secondary-text: #56625c; /* Secondary Text */
+  --accent-base: #c49a5a; /* Premium Accent Gold */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0f3326; /* Dark Green for Dark Mode BG */
+    --foreground: #faf9f5; /* Light Cream Text for Dark Mode */
+
+    --card-bg: #164a35; /* Primary Green Card BG */
+    --card-border: #28624a; /* Medium Green Border */
+    --card-border-soft: #28624a;
+
+    --input-bg: #164a35;
+    --input-border: #28624a;
+    --input-focus: #faf9f5;
+
+    --muted-text: #ddebe3; /* Soft Green for Muted Text */
+    --secondary-text: #ddebe3;
+    --accent-base: #c49a5a;
   }
 }
 
+@theme {
+  /* Brand Typography & Grayscale palette overrides */
+  --font-serif: var(--font-serif);
+
+  --color-primary: var(--color-primary-base);
+  --color-primary-dark: var(--color-primary-dark-base);
+  --color-primary-medium: var(--color-primary-medium-base);
+  --color-green-soft: var(--color-green-soft-base);
+  --color-green-light: var(--color-green-light-base);
+
+  /* Layout elements */
+  --color-bg-base: var(--background);
+  --color-bg-soft: #f3f5f0; /* Secondary Background */
+  --color-surface: var(--card-bg);
+  --color-border-base: var(--card-border);
+  --color-border-soft: var(--card-border-soft);
+
+  /* Text elements */
+  --color-text-base: var(--foreground);
+  --color-text-secondary: var(--secondary-text);
+  --color-text-muted: var(--muted-text);
+
+  /* Support colors */
+  --color-success: #15803d;
+  --color-success-hover: #166534;
+  --color-danger: #991b1b;
+  --color-danger-hover: #7f1d1d;
+  --color-warning: #a16207;
+  --color-warning-hover: #854d0e;
+  --color-info: #0369a1;
+  --color-info-hover: #075985;
+
+  --color-accent: var(--accent-base);
+
+  /* Transitions */
+  --animate-fade-in: fade-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-spin-slow: spin 4s linear infinite;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Document level resets & fine-print font smoothing */
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Focus indicator using primary brand green */
+*:focus-visible {
+  outline: 1.5px solid var(--color-primary-base);
+  outline-offset: 1.5px;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--card-border);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-text);
 }
