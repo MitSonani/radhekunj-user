@@ -205,7 +205,7 @@ export function ProductDetailContent({ slug }: ProductDetailContentProps) {
   const hasOptions = product.availableOptions.length > 0;
 
   return (
-    <div className="flex flex-col flex-grow bg-bg-base">
+    <div className="flex flex-col flex-grow bg-bg-base pb-24 md:pb-0">
 
       {/* ── Product info section ─────────────────────────────────────────────── */}
       <div className="py-8 md:py-14">
@@ -249,9 +249,9 @@ export function ProductDetailContent({ slug }: ProductDetailContentProps) {
               {product.name}
             </h1>
 
-            {/* Price + tax line */}
+            {/* Price + tax line — hidden on mobile (shown in sticky bottom bar) */}
             {displayPrice && (
-              <div className="flex flex-col gap-0.5">
+              <div className="hidden md:flex flex-col gap-0.5">
                 <PriceDisplay
                   price={displayPrice}
                   compareAtPrice={displayCompareAtPrice}
@@ -296,13 +296,13 @@ export function ProductDetailContent({ slug }: ProductDetailContentProps) {
               </p>
             )}
 
-            {/* Add to cart */}
+            {/* Add to cart — hidden on mobile (shown in sticky bottom bar) */}
             <Button
               variant="primary"
               size="lg"
               disabled={!canAddToBag}
               onClick={handleAddToBag}
-              className="w-full justify-center mt-1"
+              className="hidden md:flex w-full justify-center mt-1"
               aria-label={bagButtonLabel}
               aria-disabled={!canAddToBag}
             >
@@ -398,6 +398,35 @@ export function ProductDetailContent({ slug }: ProductDetailContentProps) {
           currentProductId={product.id}
         />
       </PageContainer>
+
+      {/* ── Mobile sticky bottom bar ─────────────────────────────────────────── */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-bg-base border-t border-border-soft">
+        <div className="flex items-center gap-4 px-4 py-3">
+          {/* Price */}
+          <div className="flex flex-col flex-shrink-0">
+            {displayPrice && (
+              <PriceDisplay
+                price={displayPrice}
+                compareAtPrice={displayCompareAtPrice}
+                size="lg"
+              />
+            )}
+          </div>
+
+          {/* Add to cart */}
+          <Button
+            variant="primary"
+            size="lg"
+            disabled={!canAddToBag}
+            onClick={handleAddToBag}
+            className="flex-1 justify-center"
+            aria-label={bagButtonLabel}
+            aria-disabled={!canAddToBag}
+          >
+            {bagButtonLabel}
+          </Button>
+        </div>
+      </div>
 
     </div>
   );
