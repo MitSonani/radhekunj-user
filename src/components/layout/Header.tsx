@@ -13,14 +13,28 @@ import { cn } from '@/lib/utils';
  */
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const pathname = usePathname();
+
+  React.useEffect(() => {
+    const checkAuth = () => {
+      setIsAuthenticated(!!localStorage.getItem('auth_token'));
+    };
+    checkAuth();
+    window.addEventListener('auth_change', checkAuth);
+    return () => {
+      window.removeEventListener('auth_change', checkAuth);
+    };
+  }, []);
 
   const navItems = [
     { label: 'Collections', href: APP_ROUTES.HOME },
     { label: 'New Arrivals', href: APP_ROUTES.PRODUCTS },
     { label: 'Cart', href: APP_ROUTES.CART },
     { label: 'Orders', href: APP_ROUTES.ORDERS },
-    { label: 'Profile', href: APP_ROUTES.PROFILE },
+    isAuthenticated
+      ? { label: 'Account', href: APP_ROUTES.PROFILE }
+      : { label: 'Sign In', href: '/login' },
   ];
 
   const toggleMobileMenu = () => {

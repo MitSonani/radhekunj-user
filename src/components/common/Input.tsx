@@ -6,6 +6,8 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   error?: string;
   helperText?: string;
   fullWidth?: boolean;
+  /** 'minimal' uses only a bottom border — suited for editorial/fashion auth forms */
+  variant?: 'default' | 'minimal';
 }
 
 /**
@@ -14,7 +16,17 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
  */
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   (
-    { className, label, error, helperText, fullWidth = false, disabled, type = 'text', ...props },
+    {
+      className,
+      label,
+      error,
+      helperText,
+      fullWidth = false,
+      disabled,
+      type = 'text',
+      variant = 'default',
+      ...props
+    },
     ref
   ) => {
     const fallbackId = useId();
@@ -51,10 +63,15 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               cn(error ? errorId : undefined, helperText ? helperId : undefined) || undefined
             }
             className={cn(
-              'w-full rounded-none border border-border-base bg-surface px-4 py-3 text-xs text-text-base transition-colors duration-250 placeholder:text-text-muted/60 focus-visible:border-primary focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-border-soft disabled:opacity-40',
-              {
-                'border-danger focus-visible:border-danger': !!error,
-              },
+              'w-full rounded-none text-xs text-text-base transition-colors duration-200 placeholder:text-text-muted/50 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40',
+              variant === 'default' && [
+                'border border-border-base bg-surface px-4 py-3 focus-visible:border-primary disabled:bg-border-soft',
+                error && 'border-danger focus-visible:border-danger',
+              ],
+              variant === 'minimal' && [
+                'border-b border-border-base bg-transparent px-0 py-3 focus-visible:border-b-primary',
+                error && 'border-b-danger focus-visible:border-b-danger',
+              ],
               className
             )}
             {...props}

@@ -62,7 +62,8 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
       throw new ApiError(
         response.status,
         errorData?.message || `HTTP error! Status: ${response.status}`,
-        errorData?.errors
+        errorData?.errors,
+        errorData?.retryAfterSeconds,
       );
     }
 

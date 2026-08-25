@@ -105,10 +105,18 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Focus indicator using primary brand green */
-*:focus-visible {
+/* Focus indicator using primary brand green.
+   Inputs, textareas and selects are exempted — they express focus through
+   their own border/underline colour change instead of an outline ring. */
+*:focus-visible:not(input):not(textarea):not(select) {
   outline: 1.5px solid var(--color-primary-base);
   outline-offset: 1.5px;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
 }
 
 /* Custom scrollbars */
