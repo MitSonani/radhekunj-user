@@ -20,18 +20,45 @@ export function calcDiscountPct(price: string, compareAtPrice: string | null): n
 }
 
 /**
- * Returns the images to display in the gallery based on selected color attribute value.
- * Generic images (attributeValueId === null) are always shown.
- * Color-specific images for the selected color are appended.
+ * Returns the initial attribute selections for a product on page load.
+ * Prefers the first IN_STOCK variant; falls back to the first variant overall.
+ * Returns an empty map when there are no variants.
+ */
+export function getInitialAttributes(
+  variants: PublicVariant[],
+): Record<string, string> {
+  if (variants.length === 0) return {};
+  const seed =
+    variants.find((v) => v.availability === 'IN_STOCK') ?? variants[0];
+  return Object.fromEntries(
+    seed.attributes.map((a) => [a.attribute.id, a.attributeValue.id]),
+  );
+}
+
+/**
+ * Returns the images to display in the gallery based on the selected color attribute value.
+ *
+ * Rules (in priority order):
+ * 1. If a color is selected → generic images + that color's images.
+ * 2. If no color is selected and generic images exist → generic images only.
+ * 3. If no color is selected and no generic images exist → all images (so the
+ *    gallery is never empty when images are present).
  */
 export function getGalleryImages(
   images: PublicImageItem[],
   selectedColorValueId: string | null,
 ): PublicImageItem[] {
   const generic = images.filter((img) => img.attributeValueId === null);
-  if (!selectedColorValueId) return generic;
-  const colorImages = images.filter((img) => img.attributeValueId === selectedColorValueId);
-  return [...generic, ...colorImages];
+
+  if (selectedColorValueId) {
+    const colorImages = images.filter(
+      (img) => img.attributeValueId === selectedColorValueId,
+    );
+    return [...generic, ...colorImages];
+  }
+
+  // No color selected: prefer generic; fall back to all images so gallery is never empty.
+  return generic.length > 0 ? generic : images;
 }
 
 /**

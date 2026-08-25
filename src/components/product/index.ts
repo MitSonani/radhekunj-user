@@ -8,3 +8,5 @@ export { ProductGallery } from './ProductGallery';
 export { AttributeSelector } from './AttributeSelector';
 export { ProductsListing } from './ProductsListing';
 export { ProductDetailContent } from './ProductDetailContent';
+export { ProductDetailSkeleton } from './ProductDetailSkeleton';
+export { MoreFromCategory } from './MoreFromCategory';

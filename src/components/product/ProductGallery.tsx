@@ -12,25 +12,48 @@ interface ProductGalleryProps {
 }
 
 /**
- * Product image gallery: large main image with a scrollable thumbnail strip.
- * Clicking a thumbnail updates the main image. Keyboard navigation supported.
+ * Product image gallery: large primary image + scrollable thumbnail strip.
+ *
+ * Behaviour:
+ * - Clicking a thumbnail selects it as the primary image.
+ * - Arrow keys on the focused main image navigate between images.
+ * - Prev/Next overlay buttons provide pointer-friendly navigation.
+ * - When the images array changes (e.g. a colour is selected in the parent),
+ *   the selected index resets to 0 — uses React's derived-state-during-render
+ *   pattern (no useEffect, no ref) to avoid stale image pointers.
  */
 export function ProductGallery({ images, productName, className }: ProductGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  // Reset to 0 when images array identity changes (e.g., color switched)
-  const safeIndex = Math.min(selectedIndex, Math.max(0, images.length - 1));
+  // ── Reset index when the image set changes (colour switch / product change) ─
+  // This is the React-recommended "derive state from props" pattern:
+  // call setState in the render body with a guard — React re-renders once more
+  // with the corrected state, and the user never sees the intermediate frame.
+  const [prevImagesKey, setPrevImagesKey] = useState('');
+  const currentImagesKey = images.map((i) => i.id).join('|');
+  if (currentImagesKey !== prevImagesKey) {
+    setPrevImagesKey(currentImagesKey);
+    setSelectedIndex(0);
+  }
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') setSelectedIndex((i) => Math.max(0, i - 1));
-      if (e.key === 'ArrowRight') setSelectedIndex((i) => Math.min(images.length - 1, i + 1));
-    },
+  // Clamp: guard against any remaining out-of-bound edge cases
+  const safeIndex = Math.min(selectedIndex, Math.max(0, images.length - 1));
+  const selectedImage = images[safeIndex] ?? null;
+
+  const goTo = useCallback(
+    (index: number) => setSelectedIndex(Math.max(0, Math.min(images.length - 1, index))),
     [images.length],
   );
 
-  const selectedImage = images[safeIndex] ?? null;
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') goTo(safeIndex - 1);
+      if (e.key === 'ArrowRight') goTo(safeIndex + 1);
+    },
+    [goTo, safeIndex],
+  );
 
+  // ── Empty state ─────────────────────────────────────────────────────────────
   if (images.length === 0) {
     return (
       <div className={cn('flex flex-col gap-4', className)}>
@@ -54,14 +77,18 @@ export function ProductGallery({ images, productName, className }: ProductGaller
     );
   }
 
+  const canGoPrev = safeIndex > 0;
+  const canGoNext = safeIndex < images.length - 1;
+
   return (
-    <div className={cn('flex flex-col gap-4', className)}>
-      {/* Main image */}
+    <div className={cn('flex flex-col', className)}>
+      {/* ── Main image ─────────────────────────────────────────────────────── */}
       <div
-        className="relative aspect-[3/4] overflow-hidden bg-green-light focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+        className="relative aspect-[3/4] overflow-hidden bg-green-light cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary select-none"
         tabIndex={0}
         role="img"
         aria-label={selectedImage?.altText || productName}
+        aria-roledescription="Image gallery"
         onKeyDown={handleKeyDown}
       >
         {selectedImage && (
@@ -76,15 +103,22 @@ export function ProductGallery({ images, productName, className }: ProductGaller
           />
         )}
 
-        {/* Arrow navigation */}
+        {/* Counter pill */}
+        {images.length > 1 && (
+          <span className="absolute bottom-3 right-3 bg-bg-base/80 backdrop-blur-sm text-[9px] uppercase tracking-[0.15em] text-text-secondary px-2 py-1 pointer-events-none">
+            {safeIndex + 1} / {images.length}
+          </span>
+        )}
+
+        {/* Prev / Next overlay buttons */}
         {images.length > 1 && (
           <>
             <button
               type="button"
               aria-label="Previous image"
-              onClick={() => setSelectedIndex((i) => Math.max(0, i - 1))}
-              disabled={safeIndex === 0}
-              className="absolute left-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center bg-bg-base/80 backdrop-blur-sm text-text-base hover:bg-bg-base transition-colors disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+              onClick={() => goTo(safeIndex - 1)}
+              disabled={!canGoPrev}
+              className="absolute left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center bg-bg-base/80 backdrop-blur-sm text-text-base hover:bg-bg-base transition-colors disabled:opacity-0 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 19.5L8.25 12l7.5-7.5" />
@@ -93,9 +127,9 @@ export function ProductGallery({ images, productName, className }: ProductGaller
             <button
               type="button"
               aria-label="Next image"
-              onClick={() => setSelectedIndex((i) => Math.min(images.length - 1, i + 1))}
-              disabled={safeIndex === images.length - 1}
-              className="absolute right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center bg-bg-base/80 backdrop-blur-sm text-text-base hover:bg-bg-base transition-colors disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+              onClick={() => goTo(safeIndex + 1)}
+              disabled={!canGoNext}
+              className="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center bg-bg-base/80 backdrop-blur-sm text-text-base hover:bg-bg-base transition-colors disabled:opacity-0 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.25 4.5l7.5 7.5-7.5 7.5" />
@@ -105,38 +139,6 @@ export function ProductGallery({ images, productName, className }: ProductGaller
         )}
       </div>
 
-      {/* Thumbnails */}
-      {images.length > 1 && (
-        <ul
-          className="flex gap-2 overflow-x-auto pb-1 list-none"
-          aria-label="Product image thumbnails"
-        >
-          {images.map((img, index) => (
-            <li key={img.id} className="flex-shrink-0">
-              <button
-                type="button"
-                aria-label={img.altText || `Image ${index + 1}`}
-                aria-pressed={index === safeIndex}
-                onClick={() => setSelectedIndex(index)}
-                className={cn(
-                  'relative h-16 w-12 block overflow-hidden border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary',
-                  index === safeIndex
-                    ? 'border-primary'
-                    : 'border-border-base hover:border-text-muted',
-                )}
-              >
-                <Image
-                  src={img.url}
-                  alt={img.altText || `Thumbnail ${index + 1}`}
-                  fill
-                  sizes="48px"
-                  className="object-cover"
-                />
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   );
 }
