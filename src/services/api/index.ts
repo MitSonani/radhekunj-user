@@ -9,3 +9,4 @@ export type {
   AuthResponseData,
   BaseApiResponse,
 } from './auth';
+export { catalogService } from './catalog';
