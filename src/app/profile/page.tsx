@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PageContainer } from '@/components/layout';
 import { Button, LoadingState } from '@/components/common';
 import { UserProfile } from '@/services/api';
+import { APP_ROUTES } from '@/constants';
 
 /**
  * Customer Profile Dashboard page (Client-side protected route).
@@ -94,6 +96,26 @@ export default function ProfilePage() {
               </span>
             </div>
           </div>
+
+          {/* Account sections */}
+          <nav aria-label="Account sections" className="flex flex-col border-t border-border-soft">
+            <Link
+              href={APP_ROUTES.ADDRESSES}
+              className="flex items-center justify-between py-5 group focus-visible:outline-none"
+            >
+              <div className="flex flex-col gap-1">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-text-secondary">
+                  Addresses
+                </span>
+                <span className="text-sm font-medium text-text-base group-hover:text-primary transition-colors">
+                  Manage delivery addresses
+                </span>
+              </div>
+              <span className="text-[9px] font-semibold uppercase tracking-[0.18em] text-primary">
+                View
+              </span>
+            </Link>
+          </nav>
         </div>
       </PageContainer>
     </div>

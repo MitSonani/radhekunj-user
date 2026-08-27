@@ -33,6 +33,10 @@ export function Header() {
 
   const cartCount = cart?.totalQuantity ?? 0;
 
+  const isNavActive = (href: string) =>
+    pathname === href ||
+    (href === APP_ROUTES.PROFILE && pathname.startsWith(`${APP_ROUTES.PROFILE}/`));
+
   const navItems = [
     { label: 'Collections', href: APP_ROUTES.HOME },
     { label: 'New Arrivals', href: APP_ROUTES.PRODUCTS },
@@ -64,7 +68,7 @@ export function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8" aria-label="Main Navigation">
             {navItems.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive = isNavActive(item.href);
               return (
                 <Link
                   key={item.href}
@@ -258,7 +262,7 @@ export function Header() {
         >
           <nav className="space-y-1 px-6 py-4" aria-label="Mobile Navigation">
             {navItems.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive = isNavActive(item.href);
               return (
                 <Link
                   key={item.href}

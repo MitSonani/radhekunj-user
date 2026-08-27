@@ -9,6 +9,7 @@ export const APP_ROUTES = {
   CART: '/cart',
   WISHLIST: '/wishlist',
   PROFILE: '/profile',
+  ADDRESSES: '/profile/addresses',
   ORDERS: '/orders',
 };
 
@@ -17,6 +18,7 @@ export const API_ENDPOINTS = {
   CATEGORIES: '/categories',
   CART: '/cart',
   WISHLIST: '/wishlist',
+  ADDRESSES: '/addresses',
   ORDERS: '/orders',
   PROFILE: '/users/profile',
 };

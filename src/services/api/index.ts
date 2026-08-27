@@ -12,3 +12,4 @@ export type {
 export { catalogService } from './catalog';
 export { cartService } from './cart';
 export { wishlistService } from './wishlist';
+export { addressService } from './address';
