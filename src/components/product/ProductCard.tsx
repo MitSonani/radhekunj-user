@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { PublicProductListItem } from '@/types/api';
 import { formatPrice } from '@/lib/product';
 import { APP_ROUTES } from '@/constants';
+import { WishlistButton } from '@/components/wishlist/WishlistButton';
 
 interface ProductCardProps {
   product: PublicProductListItem;
@@ -16,9 +17,10 @@ interface ProductCardProps {
  * Customer-facing product card for the product grid.
  * Displays primary image, product name, and base price.
  * Links to the product detail page.
+ * Includes a WishlistButton overlay that stops event propagation.
  */
 export function ProductCard({ product, className, priority = false }: ProductCardProps) {
-  const { name, slug, price, primaryImage, category } = product;
+  const { id, name, slug, price, primaryImage, category } = product;
   const imageUrl = primaryImage?.url ?? null;
   const altText = primaryImage?.altText || name;
 
@@ -57,6 +59,11 @@ export function ProductCard({ product, className, priority = false }: ProductCar
             </svg>
           </div>
         )}
+
+        {/* Wishlist button — top-right overlay, stops propagation so it doesn't open the product page */}
+        <div className="absolute top-2 right-2 z-10">
+          <WishlistButton productId={id} productName={name} variant="icon" />
+        </div>
       </div>
 
       {/* Product info */}

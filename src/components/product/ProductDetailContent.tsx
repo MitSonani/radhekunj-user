@@ -21,6 +21,7 @@ import { PriceDisplay } from './PriceDisplay';
 import { AttributeSelector } from './AttributeSelector';
 import { ProductDetailSkeleton } from './ProductDetailSkeleton';
 import { MoreFromCategory } from './MoreFromCategory';
+import { WishlistButton } from '@/components/wishlist/WishlistButton';
 
 // ── Accordion item ─────────────────────────────────────────────────────────────
 function AccordionItem({
@@ -338,6 +339,15 @@ export function ProductDetailContent({ slug }: ProductDetailContentProps) {
               {bagButtonLabel}
             </Button>
 
+            {/* Wishlist toggle — desktop only; also present in mobile sticky bar */}
+            <div className="hidden md:flex">
+              <WishlistButton
+                productId={product.id}
+                productName={product.name}
+                variant="pill"
+              />
+            </div>
+
             {/* No variants notice */}
             {!hasVariants && (
               <p className="text-[10px] text-text-muted text-center">
@@ -430,7 +440,7 @@ export function ProductDetailContent({ slug }: ProductDetailContentProps) {
 
       {/* ── Mobile sticky bottom bar ─────────────────────────────────────────── */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-bg-base border-t border-border-soft">
-        <div className="flex items-center gap-4 px-4 py-3">
+        <div className="flex items-center gap-3 px-4 py-3">
           {/* Price */}
           <div className="flex flex-col flex-shrink-0">
             {displayPrice && (
@@ -455,6 +465,14 @@ export function ProductDetailContent({ slug }: ProductDetailContentProps) {
           >
             {bagButtonLabel}
           </Button>
+
+          {/* Wishlist toggle */}
+          <WishlistButton
+            productId={product.id}
+            productName={product.name}
+            variant="icon"
+            className="flex-shrink-0 w-10 h-10"
+          />
         </div>
       </div>
 

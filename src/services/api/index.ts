@@ -11,3 +11,4 @@ export type {
 } from './auth';
 export { catalogService } from './catalog';
 export { cartService } from './cart';
+export { wishlistService } from './wishlist';

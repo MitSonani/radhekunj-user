@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Playfair_Display } from 'next/font/google';
 import { Header, Footer } from '@/components/layout';
 import { CartProvider } from '@/contexts/CartContext';
+import { WishlistProvider } from '@/contexts/WishlistContext';
 import { CartDrawer } from '@/components/cart/CartDrawer';
 import './globals.css';
 
@@ -38,10 +39,12 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-bg-base text-text-base transition-colors duration-200">
         <CartProvider>
-          <Header />
-          <main className="flex-grow flex flex-col w-full animate-fade-in">{children}</main>
-          <Footer />
-          <CartDrawer />
+          <WishlistProvider>
+            <Header />
+            <main className="flex-grow flex flex-col w-full animate-fade-in">{children}</main>
+            <Footer />
+            <CartDrawer />
+          </WishlistProvider>
         </CartProvider>
       </body>
     </html>

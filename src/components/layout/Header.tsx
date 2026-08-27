@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCart } from '@/contexts/CartContext';
+import { useWishlist } from '@/contexts/WishlistContext';
 import { PageContainer } from './PageContainer';
 import { APP_ROUTES } from '@/constants';
 import { cn } from '@/lib/utils';
@@ -17,6 +18,7 @@ export function Header() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const pathname = usePathname();
   const { cart, openDrawer } = useCart();
+  const { count: wishlistCount } = useWishlist();
 
   React.useEffect(() => {
     const checkAuth = () => {
@@ -80,6 +82,43 @@ export function Header() {
               );
             })}
 
+            {/* Wishlist link */}
+            <Link
+              href="/wishlist"
+              className={cn(
+                'relative flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.2em] transition-all hover:text-primary focus-visible:outline-none rounded py-1',
+                pathname === '/wishlist'
+                  ? 'text-primary font-semibold after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1.5px] after:bg-primary'
+                  : 'text-text-secondary'
+              )}
+              aria-label={wishlistCount > 0 ? `Wishlist, ${wishlistCount} items` : 'Wishlist'}
+              aria-current={pathname === '/wishlist' ? 'page' : undefined}
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                />
+              </svg>
+              <span>Wishlist</span>
+              {wishlistCount > 0 && (
+                <span
+                  className="flex h-4 min-w-[1rem] items-center justify-center bg-primary px-1 text-[8px] font-bold text-white leading-none"
+                  aria-hidden="true"
+                >
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
+
             {/* Bag icon button */}
             <button
               type="button"
@@ -113,8 +152,35 @@ export function Header() {
             </button>
           </nav>
 
-          {/* Mobile: bag icon + hamburger */}
+          {/* Mobile: wishlist + bag icon + hamburger */}
           <div className="flex md:hidden items-center gap-3">
+            {/* Mobile wishlist link */}
+            <Link
+              href="/wishlist"
+              aria-label={wishlistCount > 0 ? `Wishlist, ${wishlistCount} items` : 'Wishlist'}
+              className="relative flex items-center p-1 text-text-base"
+            >
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                />
+              </svg>
+              {wishlistCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-[1rem] items-center justify-center bg-primary px-0.5 text-[8px] font-bold text-white leading-none" aria-hidden="true">
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
+
             {/* Mobile bag button */}
             <button
               type="button"
@@ -208,6 +274,24 @@ export function Header() {
                 </Link>
               );
             })}
+            {/* Wishlist link in mobile menu */}
+            <Link
+              href="/wishlist"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={cn(
+                'flex items-center gap-2 py-3 text-xs font-semibold uppercase tracking-[0.2em] transition-colors hover:text-primary',
+                pathname === '/wishlist' ? 'text-primary' : 'text-text-secondary'
+              )}
+              aria-current={pathname === '/wishlist' ? 'page' : undefined}
+            >
+              Wishlist
+              {wishlistCount > 0 && (
+                <span className="flex h-4 min-w-[1rem] items-center justify-center bg-primary px-1 text-[8px] font-bold text-white">
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
+
             {/* Cart link in mobile menu */}
             <Link
               href={APP_ROUTES.CART}

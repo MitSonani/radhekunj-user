@@ -7,6 +7,7 @@ export const APP_ROUTES = {
   PRODUCT_DETAIL: (slug: string) => `/products/${slug}`,
   CATEGORY: (slug: string) => `/categories/${slug}`,
   CART: '/cart',
+  WISHLIST: '/wishlist',
   PROFILE: '/profile',
   ORDERS: '/orders',
 };
@@ -15,6 +16,7 @@ export const API_ENDPOINTS = {
   PRODUCTS: '/products',
   CATEGORIES: '/categories',
   CART: '/cart',
+  WISHLIST: '/wishlist',
   ORDERS: '/orders',
   PROFILE: '/users/profile',
 };
