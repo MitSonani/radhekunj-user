@@ -10,3 +10,4 @@ export type {
   BaseApiResponse,
 } from './auth';
 export { catalogService } from './catalog';
+export { cartService } from './cart';

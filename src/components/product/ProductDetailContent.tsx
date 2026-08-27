@@ -3,9 +3,12 @@
 import React, { useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { PageContainer } from '@/components/layout';
-import { Button, ErrorState, EmptyState } from '@/components/common';
+import { Button, ErrorState, EmptyState, Toast } from '@/components/common';
 import { useProduct } from '@/hooks/useProduct';
+import { useCart } from '@/contexts/CartContext';
+import { ApiError } from '@/types/api';
 import { PublicVariant } from '@/types/api';
 import {
   findMatchingVariant,
@@ -84,11 +87,14 @@ interface ProductDetailContentProps {
 
 export function ProductDetailContent({ slug }: ProductDetailContentProps) {
   const { product, isLoading, error, notFound, refetch } = useProduct(slug);
+  const { addToCart, isAddingToCart } = useCart();
+  const router = useRouter();
 
   const [selectedAttributes, setSelectedAttributes] = useState<
     Record<string, string>
   >({});
   const [currentProductId, setCurrentProductId] = useState<string | null>(null);
+  const [addError, setAddError] = useState<string | null>(null);
 
   // Auto-select the best initial variant whenever a new product loads
   if (product !== null && product.id !== currentProductId) {
@@ -136,29 +142,41 @@ export function ProductDetailContent({ slug }: ProductDetailContentProps) {
     product !== null &&
     allAttributesSelected &&
     selectedVariant !== null &&
-    !isOutOfStock;
+    !isOutOfStock &&
+    !isAddingToCart;
 
   const missingAttributeNames =
     product?.availableOptions
       .filter((g) => !selectedAttributes[g.attribute.id])
       .map((g) => g.attribute.name) ?? [];
 
-  let bagButtonLabel = 'ADD TO CART';
-  if (!allAttributesSelected && (product?.availableOptions.length ?? 0) > 0)
-    bagButtonLabel = 'SELECT OPTIONS';
-  else if (isOutOfStock) bagButtonLabel = 'OUT OF STOCK';
+  let bagButtonLabel = 'Add to Bag';
+  if (isAddingToCart) bagButtonLabel = 'Adding...';
+  else if (!allAttributesSelected && (product?.availableOptions.length ?? 0) > 0)
+    bagButtonLabel = 'Select Options';
+  else if (isOutOfStock) bagButtonLabel = 'Out of Stock';
 
-  const handleAddToBag = useCallback(() => {
+  const handleAddToBag = useCallback(async () => {
     if (!canAddToBag || !selectedVariant) return;
-    console.info('[AURA] Add to bag — variant payload ready:', {
-      variantId: selectedVariant.id,
-      price: selectedVariant.price,
-      attributes: selectedVariant.attributes.map((a) => ({
-        attribute: a.attribute.name,
-        value: a.attributeValue.value,
-      })),
-    });
-  }, [canAddToBag, selectedVariant]);
+
+    // Check authentication — redirect to login preserving return URL
+    if (typeof window !== 'undefined' && !localStorage.getItem('auth_token')) {
+      router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+
+    setAddError(null);
+    try {
+      await addToCart(selectedVariant.id, 1);
+      // Cart drawer opens automatically on success (inside CartContext)
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : 'Failed to add to bag. Please try again.';
+      setAddError(message);
+    }
+  }, [canAddToBag, selectedVariant, addToCart, router]);
 
   // ── Loading / error states ────────────────────────────────────────────────────
   if (isLoading) return <ProductDetailSkeleton />;
@@ -206,6 +224,16 @@ export function ProductDetailContent({ slug }: ProductDetailContentProps) {
 
   return (
     <div className="flex flex-col flex-grow bg-bg-base pb-24 md:pb-0">
+
+      {/* Add-to-bag error toast */}
+      {addError && (
+        <Toast
+          message={addError}
+          type="error"
+          duration={4000}
+          onDismiss={() => setAddError(null)}
+        />
+      )}
 
       {/* ── Product info section ─────────────────────────────────────────────── */}
       <div className="py-8 md:py-14">
@@ -296,11 +324,12 @@ export function ProductDetailContent({ slug }: ProductDetailContentProps) {
               </p>
             )}
 
-            {/* Add to cart — hidden on mobile (shown in sticky bottom bar) */}
+            {/* Add to bag — hidden on mobile (shown in sticky bottom bar) */}
             <Button
               variant="primary"
               size="lg"
               disabled={!canAddToBag}
+              isLoading={isAddingToCart}
               onClick={handleAddToBag}
               className="hidden md:flex w-full justify-center mt-1"
               aria-label={bagButtonLabel}
@@ -413,11 +442,12 @@ export function ProductDetailContent({ slug }: ProductDetailContentProps) {
             )}
           </div>
 
-          {/* Add to cart */}
+          {/* Add to bag */}
           <Button
             variant="primary"
             size="lg"
             disabled={!canAddToBag}
+            isLoading={isAddingToCart}
             onClick={handleAddToBag}
             className="flex-1 justify-center"
             aria-label={bagButtonLabel}
