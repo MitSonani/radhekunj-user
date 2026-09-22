@@ -58,7 +58,6 @@ function QuantityControl({ item, isUpdating, isRemoving }: QuantityControlProps)
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center gap-3">
-        {/* Quantity stepper */}
         <div className="flex items-center border border-border-base">
           <button
             type="button"
@@ -71,21 +70,19 @@ function QuantityControl({ item, isUpdating, isRemoving }: QuantityControlProps)
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
             </svg>
           </button>
-
           <span
-            className="min-w-[2rem] text-center text-[11px] font-medium text-text-base select-none"
+            className="min-w-[2.25rem] text-center text-[11px] font-medium text-text-base select-none"
             aria-live="polite"
             aria-label={`Quantity: ${item.quantity}`}
           >
             {isUpdating ? (
-              <span className="inline-flex items-center justify-center">
-                <span className="inline-block h-3 w-3 animate-spin rounded-full border border-t-primary border-border-base" aria-hidden="true" />
+              <span className="inline-flex items-center justify-center py-0.5">
+                <span className="inline-block h-2.5 w-2.5 animate-spin rounded-full border border-t-primary border-border-base" aria-hidden="true" />
               </span>
             ) : (
               item.quantity
             )}
           </span>
-
           <button
             type="button"
             onClick={handleIncrease}
@@ -99,13 +96,12 @@ function QuantityControl({ item, isUpdating, isRemoving }: QuantityControlProps)
           </button>
         </div>
 
-        {/* Remove */}
         <button
           type="button"
           onClick={handleRemove}
           disabled={isDisabled}
           aria-label={`Remove ${item.variant.product.name} from bag`}
-          className="text-[9px] font-medium uppercase tracking-[0.16em] text-text-muted transition-colors hover:text-danger disabled:opacity-40 disabled:cursor-not-allowed"
+          className="text-[9px] font-medium uppercase tracking-[0.15em] text-text-muted transition-colors hover:text-danger disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {isRemoving ? 'Removing...' : 'Remove'}
         </button>
@@ -369,14 +365,41 @@ export function CartDrawer() {
         {/* Footer */}
         {!isEmpty && !isLoading && !cartError && cart && (
           <div className="border-t border-border-soft px-6 py-5">
-            {/* Subtotal */}
-            <div className="mb-4 flex items-center justify-between">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-text-muted">
-                Subtotal
-              </span>
-              <span className="text-base font-medium text-text-base">
-                {formatPrice(cart.subtotal)}
-              </span>
+            {/* Subtotal & Discount */}
+            <div className="mb-4 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-text-muted">
+                  Subtotal
+                </span>
+                <span className="text-sm font-medium text-text-base">
+                  {formatPrice(cart.subtotal)}
+                </span>
+              </div>
+
+              {parseFloat(cart.discountAmount) > 0 && (
+                <div className="flex items-center justify-between text-primary">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.2em] flex items-center gap-1.5">
+                    <span>Discount</span>
+                    {cart.coupon && (
+                      <span className="font-mono text-[9px] bg-primary/10 px-1 py-0.5">
+                        {cart.coupon.code}
+                      </span>
+                    )}
+                  </span>
+                  <span className="text-sm font-semibold">
+                    -{formatPrice(cart.discountAmount)}
+                  </span>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between pt-2 border-t border-border-soft">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-text-base">
+                  Total
+                </span>
+                <span className="text-base font-semibold text-text-base">
+                  {formatPrice(cart.finalSubtotal ?? cart.subtotal)}
+                </span>
+              </div>
             </div>
 
             {clearError && (

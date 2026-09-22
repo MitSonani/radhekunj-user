@@ -211,6 +211,133 @@ function CartPageItemRow({ item }: { item: CartItem }) {
   );
 }
 
+// ── Coupon Section ────────────────────────────────────────────────────────────
+
+function CartCouponSection() {
+  const { cart, applyCoupon, removeCoupon, isApplyingCoupon, isRemovingCoupon } = useCart();
+  const [couponCode, setCouponCode] = useState('');
+  const [couponError, setCouponError] = useState<string | null>(null);
+
+  const handleApply = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = couponCode.trim();
+    if (!trimmed || isApplyingCoupon) return;
+    setCouponError(null);
+    try {
+      await applyCoupon(trimmed);
+      setCouponCode('');
+    } catch (err) {
+      setCouponError(err instanceof ApiError ? err.message : 'Failed to apply coupon. Please try again.');
+    }
+  };
+
+  const handleRemove = async () => {
+    if (isRemovingCoupon) return;
+    setCouponError(null);
+    try {
+      await removeCoupon();
+    } catch (err) {
+      setCouponError(err instanceof ApiError ? err.message : 'Failed to remove coupon. Please try again.');
+    }
+  };
+
+  if (!cart) return null;
+
+  return (
+    <div className="border-t border-border-soft pt-5 pb-5">
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-text-base">
+          Promo Code
+        </span>
+      </div>
+
+      {cart.coupon ? (
+        <div className="flex items-center justify-between border border-primary/20 bg-primary/5 px-3.5 py-3">
+          <div className="flex items-start gap-2.5">
+            <svg
+              className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M9 14.25l6-6m4.5-3.493V8.25a2.25 2.25 0 01-.659 1.591L11.591 17.09a2.25 2.25 0 01-1.591.66H4.25a1.125 1.125 0 01-1.125-1.125v-5.75c0-.597.237-1.17.659-1.591L11.03 2.09A2.25 2.25 0 0112.62 1.43h5.63a1.125 1.125 0 011.125 1.125z"
+              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7.5 7.5h.008v.008H7.5V7.5z" />
+            </svg>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-primary">
+                  {cart.coupon.code}
+                </span>
+                <span className="text-[9px] font-medium text-primary/80">
+                  (-{formatPrice(cart.discountAmount)})
+                </span>
+              </div>
+              <p className="mt-0.5 text-[9px] text-text-muted">
+                {cart.coupon.discountType === 'PERCENTAGE'
+                  ? `${cart.coupon.discountValue}% discount applied`
+                  : `${formatPrice(cart.coupon.discountValue)} discount applied`}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleRemove}
+            disabled={isRemovingCoupon}
+            aria-label={`Remove coupon ${cart.coupon.code}`}
+            className="text-[9px] font-semibold uppercase tracking-[0.16em] text-danger hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {isRemovingCoupon ? 'Removing...' : 'Remove'}
+          </button>
+        </div>
+      ) : (
+        <form onSubmit={handleApply} className="space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <input
+                id="cart-coupon-input"
+                type="text"
+                value={couponCode}
+                onChange={(e) => {
+                  setCouponCode(e.target.value.toUpperCase());
+                  if (couponError) setCouponError(null);
+                }}
+                placeholder="ENTER COUPON CODE"
+                disabled={isApplyingCoupon}
+                aria-label="Coupon or promo code"
+                aria-invalid={!!couponError}
+                aria-describedby={couponError ? 'cart-coupon-error' : undefined}
+                className="w-full rounded-none border border-border-base bg-surface px-3 py-2 text-[11px] font-mono uppercase tracking-wider text-text-base placeholder:text-text-muted/60 placeholder:font-sans placeholder:normal-case placeholder:tracking-normal focus-visible:border-primary focus-visible:outline-none disabled:bg-border-soft disabled:cursor-not-allowed"
+              />
+            </div>
+            <Button
+              type="submit"
+              variant="outline"
+              size="sm"
+              isLoading={isApplyingCoupon}
+              disabled={isApplyingCoupon || !couponCode.trim()}
+              className="h-[36px] px-4 text-[9px]"
+            >
+              Apply
+            </Button>
+          </div>
+
+          {couponError && (
+            <p id="cart-coupon-error" className="text-[10px] text-danger animate-fade-in" role="alert">
+              {couponError}
+            </p>
+          )}
+        </form>
+      )}
+    </div>
+  );
+}
+
 // ── Cart Page ─────────────────────────────────────────────────────────────────
 
 export default function CartPage() {
@@ -401,20 +528,38 @@ export default function CartPage() {
                   {formatPrice(cart.subtotal)}
                 </span>
               </div>
+
+              {parseFloat(cart.discountAmount) > 0 && (
+                <div className="flex justify-between text-primary">
+                  <span className="text-[10px] uppercase tracking-[0.1em] flex items-center gap-1.5">
+                    <span>Discount</span>
+                    {cart.coupon && (
+                      <span className="font-mono text-[9px] bg-primary/10 px-1 py-0.5">
+                        {cart.coupon.code}
+                      </span>
+                    )}
+                  </span>
+                  <span className="text-[11px] font-semibold">
+                    -{formatPrice(cart.discountAmount)}
+                  </span>
+                </div>
+              )}
+
               <div className="flex justify-between text-text-muted">
                 <span className="text-[10px] uppercase tracking-[0.1em]">Shipping</span>
                 <span className="text-[10px]">Calculated at checkout</span>
               </div>
             </div>
 
-            <div className="my-5 border-t border-border-soft" />
+            {/* Coupon input section */}
+            <CartCouponSection />
 
             <div className="flex items-center justify-between mb-6">
               <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-base">
                 Total
               </span>
               <span className="text-xl font-medium text-text-base">
-                {formatPrice(cart.subtotal)}
+                {formatPrice(cart.finalSubtotal ?? cart.subtotal)}
               </span>
             </div>
 
