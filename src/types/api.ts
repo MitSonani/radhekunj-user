@@ -104,52 +104,78 @@ export interface ListProductsParams {
 
 // ─── Generic API types ────────────────────────────────────────────────────────
 
-/**
- * Base structure of API error responses returned by the backend.
- * `retryAfterSeconds` is included on 429 Too Many Requests responses.
- */
-export interface ApiErrorResponse {
-  status: 'error';
+export interface ApiValidationErrorDetail {
+  field: string;
   message: string;
-  errors?: Record<string, string[]>;
-  retryAfterSeconds?: number;
-  stack?: string; // Only populated in development environment
 }
 
 /**
- * Standard pagination wrapper for API listing endpoints.
+ * Base structure of API error responses returned by the backend.
+ */
+export interface ApiErrorResponse {
+  success?: boolean;
+  message: string;
+  requestId?: string;
+  errors?: Record<string, string[]>;
+  details?: ApiValidationErrorDetail[] | unknown;
+  retryAfterSeconds?: number;
+  stack?: string;
+}
+
+/**
+ * Standard pagination wrapper matching Backend PaginationMeta contract.
  */
 export interface PaginatedResponse<T> {
+  success: boolean;
   data: T[];
   pagination: {
     page: number;
     limit: number;
-    totalCount: number;
+    total: number;
     totalPages: number;
-    hasNextPage: boolean;
-    hasPreviousPage: boolean;
   };
 }
 
 /**
  * Custom error class to represent API failures.
- * `retryAfterSeconds` is populated when the backend returns 429 Too Many Requests.
  */
 export class ApiError extends Error {
   statusCode: number;
+  requestId?: string;
   errors?: Record<string, string[]>;
+  details?: unknown;
   retryAfterSeconds?: number;
 
   constructor(
     statusCode: number,
     message: string,
-    errors?: Record<string, string[]>,
-    retryAfterSeconds?: number,
+    options?: {
+      requestId?: string;
+      errors?: Record<string, string[]>;
+      details?: unknown;
+      retryAfterSeconds?: number;
+    } | Record<string, string[]>,
+    legacyRetryAfterSeconds?: number,
   ) {
     super(message);
     this.name = 'ApiError';
     this.statusCode = statusCode;
-    this.errors = errors;
-    this.retryAfterSeconds = retryAfterSeconds;
+
+    if (options && !('errors' in options || 'requestId' in options || 'details' in options || 'retryAfterSeconds' in options)) {
+      // Legacy positional call: (statusCode, message, errors, retryAfterSeconds)
+      this.errors = options as Record<string, string[]>;
+      this.retryAfterSeconds = legacyRetryAfterSeconds;
+    } else if (options) {
+      const opts = options as {
+        requestId?: string;
+        errors?: Record<string, string[]>;
+        details?: unknown;
+        retryAfterSeconds?: number;
+      };
+      this.requestId = opts.requestId;
+      this.errors = opts.errors;
+      this.details = opts.details;
+      this.retryAfterSeconds = opts.retryAfterSeconds ?? legacyRetryAfterSeconds;
+    }
   }
 }

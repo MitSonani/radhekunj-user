@@ -20,7 +20,7 @@ export interface UserRole {
 export interface UserProfile {
   id: string;
   name: string;
-  role: UserRole;
+  role: UserRole | null;
 }
 
 export interface AuthResponseData {

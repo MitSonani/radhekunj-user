@@ -16,7 +16,6 @@ export function useOtpCountdown(initialSeconds: number) {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const startCountdown = useCallback((seconds: number) => {
-    // Always clear any existing interval before starting a new one
     if (intervalRef.current !== null) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
@@ -38,17 +37,27 @@ export function useOtpCountdown(initialSeconds: number) {
     }, 1000);
   }, []);
 
-  // Auto-start on mount; clean up on unmount
+  // Auto-start timer on mount if initialSeconds > 0
   useEffect(() => {
-    startCountdown(initialSeconds);
+    if (initialSeconds > 0) {
+      intervalRef.current = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(intervalRef.current!);
+            intervalRef.current = null;
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+
     return () => {
       if (intervalRef.current !== null) {
         clearInterval(intervalRef.current);
       }
     };
-    // Only run once on mount — intentionally omitting deps
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [initialSeconds]);
 
   return { countdown, startCountdown };
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PageContainer } from '@/components/layout';
@@ -18,6 +18,18 @@ type FormMode = { type: 'closed' } | { type: 'create' } | { type: 'edit'; id: st
 /**
  * /profile/addresses — authenticated customer's saved addresses.
  */
+function getCachedUserInitialAddress(): Partial<AddressFormValues> {
+  if (typeof window === 'undefined') return EMPTY_ADDRESS_FORM;
+  try {
+    const cached = localStorage.getItem('user_profile');
+    if (!cached) return EMPTY_ADDRESS_FORM;
+    const profile = JSON.parse(cached) as UserProfile;
+    return { ...EMPTY_ADDRESS_FORM, fullName: profile.name ?? '' };
+  } catch {
+    return EMPTY_ADDRESS_FORM;
+  }
+}
+
 export default function AddressesPage() {
   const router = useRouter();
   const {
@@ -59,17 +71,7 @@ export default function AddressesPage() {
     }
   }, [error, router]);
 
-  const createInitialValues = useMemo<Partial<AddressFormValues>>(() => {
-    if (typeof window === 'undefined') return EMPTY_ADDRESS_FORM;
-    try {
-      const cached = localStorage.getItem('user_profile');
-      if (!cached) return EMPTY_ADDRESS_FORM;
-      const profile = JSON.parse(cached) as UserProfile;
-      return { ...EMPTY_ADDRESS_FORM, fullName: profile.name ?? '' };
-    } catch {
-      return EMPTY_ADDRESS_FORM;
-    }
-  }, [isAuthenticated]);
+
 
   const handleCreate = async (payload: CreateAddressPayload) => {
     await createAddress(payload);
@@ -202,7 +204,7 @@ export default function AddressesPage() {
             </h2>
             <AddressForm
               key="create"
-              initialValues={createInitialValues}
+              initialValues={getCachedUserInitialAddress()}
               submitLabel="Save Address"
               onSubmit={handleCreate}
               onCancel={() => setFormMode({ type: 'closed' })}

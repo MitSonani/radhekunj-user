@@ -54,17 +54,32 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     if (!response.ok) {
       let errorData: ApiErrorResponse | null = null;
       try {
-        errorData = await response.json();
+        errorData = (await response.json()) as ApiErrorResponse;
       } catch {
         // Fallback for non-JSON or empty response bodies
       }
 
-      throw new ApiError(
-        response.status,
-        errorData?.message || `HTTP error! Status: ${response.status}`,
-        errorData?.errors,
-        errorData?.retryAfterSeconds,
-      );
+      const message = errorData?.message || `HTTP error! Status: ${response.status}`;
+
+      let errors: Record<string, string[]> | undefined = errorData?.errors;
+      if (!errors && Array.isArray(errorData?.details)) {
+        errors = {};
+        for (const item of errorData.details) {
+          if (item && item.field && item.message) {
+            if (!errors[item.field]) {
+              errors[item.field] = [];
+            }
+            errors[item.field].push(item.message);
+          }
+        }
+      }
+
+      throw new ApiError(response.status, message, {
+        requestId: errorData?.requestId,
+        errors,
+        details: errorData?.details,
+        retryAfterSeconds: errorData?.retryAfterSeconds,
+      });
     }
 
     // Return empty for 204 No Content

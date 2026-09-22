@@ -61,6 +61,20 @@ export type CartItem = {
   updatedAt: string;
 };
 
+export type CartCouponDiscountType = 'PERCENTAGE' | 'FIXED_AMOUNT';
+export type CartCouponScope = 'CART' | 'PRODUCT' | 'CATEGORY';
+
+export type CartCoupon = {
+  code: string;
+  discountType: CartCouponDiscountType;
+  discountValue: string;
+  scope: CartCouponScope;
+  eligibleSubtotal: string;
+  discountAmount: string;
+  eligibleItemIds: string[];
+  ineligibleItemIds: string[];
+};
+
 export type Cart = {
   id: string | null;
   items: CartItem[];
@@ -70,6 +84,11 @@ export type Cart = {
   totalQuantity: number;
   /** Authoritative subtotal calculated from current variant prices */
   subtotal: string;
+  /** Authoritative coupon discount; "0.00" when no valid coupon is applied */
+  discountAmount: string;
+  /** subtotal - discountAmount. Never negative. Does not include tax or shipping. */
+  finalSubtotal: string;
+  coupon: CartCoupon | null;
 };
 
 export interface CartApiResponse {
@@ -85,4 +104,8 @@ export interface AddToCartPayload {
 
 export interface UpdateCartItemPayload {
   quantity: number;
+}
+
+export interface ApplyCouponPayload {
+  code: string;
 }

@@ -42,6 +42,7 @@ export interface AddToWishlistResult {
   id: string;
   productId: string;
   createdAt: string;
+  alreadyWishlisted?: boolean;
 }
 
 export interface AddToWishlistApiResponse {

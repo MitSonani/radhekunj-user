@@ -28,9 +28,9 @@ export interface CartContextValue {
   isAddingToCart: boolean;
   /** True while the clear-cart request is in-flight */
   isClearing: boolean;
-  /** Map of cartItemId → true while that item's quantity is being updated */
+  /** Map of cartItemId -> true while that item is being updated */
   updatingItems: Record<string, boolean>;
-  /** Map of cartItemId → true while that item is being removed */
+  /** Map of cartItemId -> true while that item is being removed */
   removingItems: Record<string, boolean>;
 
   /**
@@ -54,6 +54,20 @@ export interface CartContextValue {
    * Throws ApiError on failure — callers should catch and surface to the user.
    */
   clearCart: () => Promise<void>;
+  /** True while an apply-coupon request is in-flight */
+  isApplyingCoupon: boolean;
+  /** True while a remove-coupon request is in-flight */
+  isRemovingCoupon: boolean;
+  /**
+   * Applies a coupon code to the user's cart.
+   * Throws ApiError on failure — callers should catch and surface to the user.
+   */
+  applyCoupon: (code: string) => Promise<void>;
+  /**
+   * Removes the applied coupon from the user's cart.
+   * Throws ApiError on failure — callers should catch and surface to the user.
+   */
+  removeCoupon: () => Promise<void>;
   /** Manually re-fetches the cart from the backend. */
   refreshCart: () => Promise<void>;
 }
@@ -179,6 +193,29 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [isRemovingCoupon, setIsRemovingCoupon] = useState(false);
+
+  const applyCoupon = useCallback(async (code: string) => {
+    setIsApplyingCoupon(true);
+    try {
+      const res = await cartService.applyCoupon({ code });
+      setCart(res.data);
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  }, []);
+
+  const removeCoupon = useCallback(async () => {
+    setIsRemovingCoupon(true);
+    try {
+      const res = await cartService.removeCoupon();
+      setCart(res.data);
+    } finally {
+      setIsRemovingCoupon(false);
+    }
+  }, []);
+
   // ── Context value ──────────────────────────────────────────────────────────
 
   const value: CartContextValue = {
@@ -196,6 +233,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     updateQuantity,
     removeItem,
     clearCart,
+    isApplyingCoupon,
+    isRemovingCoupon,
+    applyCoupon,
+    removeCoupon,
     refreshCart,
   };
 

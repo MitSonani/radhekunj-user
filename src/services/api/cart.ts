@@ -1,5 +1,10 @@
 import { apiClient } from './apiClient';
-import type { CartApiResponse, AddToCartPayload, UpdateCartItemPayload } from '@/types/cart';
+import type {
+  CartApiResponse,
+  AddToCartPayload,
+  UpdateCartItemPayload,
+  ApplyCouponPayload,
+} from '@/types/cart';
 
 /**
  * Service for the authenticated Cart API.
@@ -11,6 +16,8 @@ import type { CartApiResponse, AddToCartPayload, UpdateCartItemPayload } from '@
  *   PATCH  /cart/items/:cartItemId  → update item quantity
  *   DELETE /cart/items/:cartItemId  → remove item
  *   DELETE /cart                    → clear cart
+ *   POST   /cart/coupon             → apply coupon code
+ *   DELETE /cart/coupon             → remove coupon
  */
 export const cartService = {
   getCart: () =>
@@ -27,4 +34,10 @@ export const cartService = {
 
   clearCart: () =>
     apiClient.delete<CartApiResponse>('/cart'),
+
+  applyCoupon: (payload: ApplyCouponPayload) =>
+    apiClient.post<CartApiResponse>('/cart/coupon', payload),
+
+  removeCoupon: () =>
+    apiClient.delete<CartApiResponse>('/cart/coupon'),
 };
