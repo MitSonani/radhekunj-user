@@ -10,6 +10,9 @@ export type {
   BaseApiResponse,
 } from './auth';
 export { catalogService } from './catalog';
+export type { ListCategoriesParams, PublicCategoryItem } from './catalog';
 export { cartService } from './cart';
 export { wishlistService } from './wishlist';
 export { addressService } from './address';
+export { ordersService } from './orders';
+export { paymentsService } from './payments';

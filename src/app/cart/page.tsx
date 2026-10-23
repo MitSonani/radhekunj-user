@@ -563,20 +563,16 @@ export default function CartPage() {
               </span>
             </div>
 
-            {/* Checkout — not yet implemented */}
+            {/* Continue to Checkout */}
             <Button
               variant="primary"
               size="lg"
               className="w-full justify-center"
               disabled={hasUnavailableItems || isLoading}
-              aria-disabled="true"
-              title="Checkout will be available soon"
+              onClick={() => router.push(APP_ROUTES.CHECKOUT)}
             >
               Continue to Checkout
             </Button>
-            <p className="mt-3 text-center text-[9px] text-text-muted">
-              Checkout coming soon
-            </p>
           </div>
         </div>
       </div>

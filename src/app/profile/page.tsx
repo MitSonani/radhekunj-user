@@ -98,7 +98,24 @@ export default function ProfilePage() {
           </div>
 
           {/* Account sections */}
-          <nav aria-label="Account sections" className="flex flex-col border-t border-border-soft">
+          <nav aria-label="Account sections" className="flex flex-col divide-y divide-border-soft border-t border-border-soft">
+            <Link
+              href={APP_ROUTES.ORDERS}
+              className="flex items-center justify-between py-5 group focus-visible:outline-none"
+            >
+              <div className="flex flex-col gap-1">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-text-secondary">
+                  Orders
+                </span>
+                <span className="text-sm font-medium text-text-base group-hover:text-primary transition-colors">
+                  View your order history and details
+                </span>
+              </div>
+              <span className="text-[9px] font-semibold uppercase tracking-[0.18em] text-primary">
+                View
+              </span>
+            </Link>
+
             <Link
               href={APP_ROUTES.ADDRESSES}
               className="flex items-center justify-between py-5 group focus-visible:outline-none"

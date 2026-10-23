@@ -19,6 +19,15 @@ export interface CatalogDetailResponse<T> {
   data: T;
 }
 
+
+export interface PublicCategoryItem {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  imageUrl: string | null;
+}
+
 export interface PublicCategorySummary {
   id: string;
   name: string;

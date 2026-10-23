@@ -240,6 +240,11 @@ export function CartDrawer() {
     };
   }, [isDrawerOpen]);
 
+  const handleCheckout = () => {
+    closeDrawer();
+    router.push(APP_ROUTES.CHECKOUT);
+  };
+
   const handleViewBag = () => {
     closeDrawer();
     router.push(APP_ROUTES.CART);
@@ -410,6 +415,14 @@ export function CartDrawer() {
               <Button
                 variant="primary"
                 size="lg"
+                className="w-full justify-center"
+                onClick={handleCheckout}
+              >
+                Checkout
+              </Button>
+              <Button
+                variant="outline"
+                size="md"
                 className="w-full justify-center"
                 onClick={handleViewBag}
               >

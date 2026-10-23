@@ -12,6 +12,10 @@ interface RequestOptions extends RequestInit {
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { params, headers, ...rest } = options;
 
+  if (config.isProduction && !process.env.NEXT_PUBLIC_API_URL) {
+    throw new ApiError(500, "NEXT_PUBLIC_API_URL is required in production.");
+  }
+
   // Build URL with query parameters
   let url = `${config.apiUrl}${path}`;
   if (params) {

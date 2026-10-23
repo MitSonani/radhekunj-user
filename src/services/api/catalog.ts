@@ -5,7 +5,14 @@ import {
   PublicProductListItem,
   PublicProductDetail,
   ListProductsParams,
+  PublicCategoryItem,
 } from '@/types/api';
+
+export interface ListCategoriesParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+}
 
 /**
  * Service for the public customer-facing catalog API.
@@ -25,6 +32,19 @@ export const catalogService = {
     });
   },
 
+  listCategories: (params?: ListCategoriesParams) => {
+    const query: Record<string, string | number | boolean> = {};
+    if (params?.page !== undefined) query.page = params.page;
+    if (params?.limit !== undefined) query.limit = params.limit;
+    if (params?.search) query.search = params.search;
+
+    return apiClient.get<CatalogListResponse<PublicCategoryItem>>("/categories", {
+      params: Object.keys(query).length ? query : undefined,
+    });
+  },
+
   getProduct: (slug: string) =>
     apiClient.get<CatalogDetailResponse<PublicProductDetail>>(`/products/${encodeURIComponent(slug)}`),
 };
+
+export type { PublicCategoryItem };

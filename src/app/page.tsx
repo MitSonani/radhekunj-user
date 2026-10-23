@@ -1,225 +1,253 @@
-import React from 'react';
-import { PageContainer } from '@/components/layout';
-import { Button, Input } from '@/components/common';
+'use client';
 
-/**
- * Editorial Homepage for AURA storefront.
- * Fully aligned with the premium green & cream brand system.
- */
+import React, { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { PageContainer } from "@/components/layout";
+import { Button } from "@/components/common";
+import { ProductCard } from "@/components/product/ProductCard";
+import { ProductCardSkeleton } from "@/components/product/ProductCardSkeleton";
+import {
+  catalogService,
+  type PublicCategoryItem,
+} from "@/services/api";
+import type { PublicProductListItem } from "@/types/api";
+import { APP_ROUTES } from "@/constants";
+
 export default function Home() {
+  const [categories, setCategories] = useState<PublicCategoryItem[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [products, setProducts] = useState<PublicProductListItem[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [productsError, setProductsError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    // Load featured categories
+    catalogService
+      .listCategories({ page: 1, limit: 3 })
+      .then((res) => {
+        if (isMounted) {
+          setCategories(res.data ?? []);
+          setCategoriesLoading(false);
+        }
+      })
+      .catch(() => {
+        if (isMounted) setCategoriesLoading(false);
+      });
+
+    // Load new arrival products
+    catalogService
+      .listProducts({ page: 1, limit: 8, sort: "newest" })
+      .then((res) => {
+        if (isMounted) {
+          setProducts(res.data ?? []);
+          setProductsLoading(false);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setProductsError("Unable to load latest arrivals.");
+          setProductsLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   return (
-    <div className="flex flex-col gap-24 py-12 md:py-20 transition-colors duration-200">
+    <div className="flex flex-col gap-20 py-10 md:py-16 transition-colors duration-200">
       {/* 1. Campaign Hero Section */}
       <PageContainer>
-        <div className="relative w-full h-[70vh] bg-green-light border border-border-base flex flex-col justify-end p-8 md:p-16 overflow-hidden">
+        <div className="relative w-full h-[65vh] min-h-[460px] bg-green-light border border-border-base flex flex-col justify-end p-8 md:p-16 overflow-hidden shadow-xs">
           {/* Subtle brand soft green radial background overlay */}
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-green-soft/30 via-transparent to-transparent pointer-events-none" />
 
           <div className="relative z-10 max-w-xl flex flex-col gap-4 items-start animate-fade-in">
-            {/* Premium Gold badge accent for luxury campaign detail */}
+            {/* Premium Gold badge accent */}
             <span className="inline-flex items-center gap-1.5 rounded-none bg-accent/15 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.25em] text-accent">
               <span className="h-1.5 w-1.5 bg-accent rounded-full animate-pulse" />
-              Autumn / Winter 2026 Collection
+              Artisan Heritage Edit
             </span>
             <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-normal leading-[1.1] text-text-base uppercase tracking-wide">
               The Art of <br /> Quiet Luxury
             </h1>
-            <p className="text-xs md:text-sm text-text-secondary leading-relaxed max-w-sm">
-              Structured silhouettes, natural organic fabrics, and a neutral palette. Tailored for
-              conscious, minimalist living.
+            <p className="text-xs md:text-sm text-text-secondary leading-relaxed max-w-md">
+              Structured silhouettes, natural organic fabrics, and a neutral palette. Hand-tailored for conscious, timeless living.
             </p>
-            <Button variant="primary" size="lg" className="mt-4">
-              Explore Collection
-            </Button>
+            <div className="flex flex-wrap items-center gap-3 mt-4">
+              <Link href={APP_ROUTES.PRODUCTS}>
+                <Button variant="primary" size="lg">
+                  Explore Collection
+                </Button>
+              </Link>
+              <Link href="/categories">
+                <Button variant="outline" size="lg">
+                  Shop by Category
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </PageContainer>
 
-      {/* 2. Shop by Category / Collections Grid */}
+      {/* 2. Shop by Category / Curated Segments */}
       <PageContainer>
         <div className="flex flex-col gap-8">
-          <div className="flex flex-col gap-2">
-            <span className="text-[9px] font-semibold uppercase tracking-[0.25em] text-text-secondary">
-              Curated Segments
-            </span>
-            <h2 className="font-serif text-2xl font-normal uppercase tracking-widest text-text-base">
-              Shop by Category
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-            {/* Category 1 */}
-            <div className="group relative aspect-[3/4] w-full bg-surface border border-border-base hover:border-primary-medium/40 hover:bg-green-light/35 transition-all duration-300 flex flex-col justify-end p-6 cursor-pointer">
-              <div className="relative z-10 flex flex-col gap-2">
-                <h3 className="font-serif text-lg font-normal text-text-base uppercase tracking-wider">
-                  The Tailored Suit
-                </h3>
-                <span className="text-[9px] font-bold uppercase tracking-widest text-text-secondary group-hover:text-primary transition-colors">
-                  Shop Category &rarr;
-                </span>
-              </div>
-            </div>
-
-            {/* Category 2 */}
-            <div className="group relative aspect-[3/4] w-full bg-surface border border-border-base hover:border-primary-medium/40 hover:bg-green-light/35 transition-all duration-300 flex flex-col justify-end p-6 cursor-pointer">
-              <div className="relative z-10 flex flex-col gap-2">
-                <h3 className="font-serif text-lg font-normal text-text-base uppercase tracking-wider">
-                  Casual Knitwear
-                </h3>
-                <span className="text-[9px] font-bold uppercase tracking-widest text-text-secondary group-hover:text-primary transition-colors">
-                  Shop Category &rarr;
-                </span>
-              </div>
-            </div>
-
-            {/* Category 3 */}
-            <div className="group relative aspect-[3/4] w-full bg-surface border border-border-base hover:border-primary-medium/40 hover:bg-green-light/35 transition-all duration-300 flex flex-col justify-end p-6 cursor-pointer">
-              <div className="relative z-10 flex flex-col gap-2">
-                <h3 className="font-serif text-lg font-normal text-text-base uppercase tracking-wider">
-                  Minimalist Accessories
-                </h3>
-                <span className="text-[9px] font-bold uppercase tracking-widest text-text-secondary group-hover:text-primary transition-colors">
-                  Shop Category &rarr;
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </PageContainer>
-
-      {/* 3. Featured / Trending Products Showcase */}
-      <PageContainer>
-        <div className="flex flex-col gap-8">
-          <div className="flex flex-col gap-2">
-            <span className="text-[9px] font-semibold uppercase tracking-[0.25em] text-text-secondary">
-              Seasonal Selects
-            </span>
-            <h2 className="font-serif text-2xl font-normal uppercase tracking-widest text-text-base">
-              New Arrivals
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Product Card 1 */}
-            <div className="group flex flex-col cursor-pointer">
-              <div className="relative aspect-[3/4] w-full bg-bg-soft border border-border-base group-hover:border-primary-medium/30 transition-all duration-300 flex items-center justify-center text-text-secondary select-none">
-                <span className="text-[10px] uppercase tracking-widest font-semibold opacity-60">
-                  Image Placeholder
-                </span>
-                <span className="absolute top-4 left-4 bg-primary text-white text-[9px] font-bold uppercase tracking-widest px-2.5 py-1">
-                  New
-                </span>
-              </div>
-              <div className="mt-4 flex flex-col gap-1">
-                <h3 className="font-serif text-sm font-normal text-text-base tracking-wide uppercase">
-                  Cashmere Wool Overcoat
-                </h3>
-                <p className="text-xs text-primary font-semibold tracking-wider">$450.00</p>
-              </div>
-            </div>
-
-            {/* Product Card 2 */}
-            <div className="group flex flex-col cursor-pointer">
-              <div className="relative aspect-[3/4] w-full bg-bg-soft border border-border-base group-hover:border-primary-medium/30 transition-all duration-300 flex items-center justify-center text-text-secondary select-none">
-                <span className="text-[10px] uppercase tracking-widest font-semibold opacity-60">
-                  Image Placeholder
-                </span>
-              </div>
-              <div className="mt-4 flex flex-col gap-1">
-                <h3 className="font-serif text-sm font-normal text-text-base tracking-wide uppercase">
-                  Silk Ribbed Knit Top
-                </h3>
-                <p className="text-xs text-primary font-semibold tracking-wider">$180.00</p>
-              </div>
-            </div>
-
-            {/* Product Card 3 */}
-            <div className="group flex flex-col cursor-pointer">
-              <div className="relative aspect-[3/4] w-full bg-bg-soft border border-border-base group-hover:border-primary-medium/30 transition-all duration-300 flex items-center justify-center text-text-secondary select-none">
-                <span className="text-[10px] uppercase tracking-widest font-semibold opacity-60">
-                  Image Placeholder
-                </span>
-              </div>
-              <div className="mt-4 flex flex-col gap-1">
-                <h3 className="font-serif text-sm font-normal text-text-base tracking-wide uppercase">
-                  Relaxed Pleated Trousers
-                </h3>
-                <p className="text-xs text-primary font-semibold tracking-wider">$220.00</p>
-              </div>
-            </div>
-
-            {/* Product Card 4 */}
-            <div className="group flex flex-col cursor-pointer">
-              <div className="relative aspect-[3/4] w-full bg-bg-soft border border-border-base group-hover:border-primary-medium/30 transition-all duration-300 flex items-center justify-center text-text-secondary select-none">
-                <span className="text-[10px] uppercase tracking-widest font-semibold opacity-60">
-                  Image Placeholder
-                </span>
-              </div>
-              <div className="mt-4 flex flex-col gap-1">
-                <h3 className="font-serif text-sm font-normal text-text-base tracking-wide uppercase">
-                  Leather Slip-On Loafer
-                </h3>
-                <p className="text-xs text-primary font-semibold tracking-wider">$310.00</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </PageContainer>
-
-      {/* 4. Editorial Brand Philosophy Section */}
-      <div className="w-full bg-bg-soft border-y border-border-base py-20 transition-colors duration-200">
-        <PageContainer>
-          <div className="grid grid-cols-1 gap-12 md:grid-cols-2 items-center">
-            <div className="flex flex-col gap-4">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.25em] text-text-secondary">
-                Our Philosophy
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border-soft pb-4">
+            <div className="flex flex-col gap-1">
+              <span className="text-[9px] font-semibold uppercase tracking-[0.25em] text-text-secondary">
+                Curated Segments
               </span>
-              <h2 className="font-serif text-3xl md:text-4xl font-normal uppercase tracking-wide text-text-base leading-tight">
-                The Architecture <br /> of Clothing
+              <h2 className="font-serif text-2xl font-normal uppercase tracking-widest text-text-base">
+                Shop by Category
               </h2>
             </div>
-            <div className="flex flex-col gap-4 text-xs md:text-sm text-text-secondary leading-relaxed">
-              <p>
-                AURA is founded on the idea that clothing should act as a subtle extension of
-                oneself. We reject seasonal trends in favor of structural integrity, premium organic
-                materials, and slow local tailoring.
-              </p>
-              <p>
-                Every garment is meticulously crafted in limited runs, honoring classic sartorial
-                techniques while serving the requirements of a modern wardrobe. We believe in owning
-                fewer, but infinitely better, items.
-              </p>
-            </div>
+            <Link
+              href="/categories"
+              className="text-xs font-semibold uppercase tracking-wider text-primary hover:underline inline-flex items-center gap-1"
+            >
+              All Collections &rarr;
+            </Link>
           </div>
-        </PageContainer>
-      </div>
 
-      {/* 5. Newsletter Sign-Up Section */}
+          {categoriesLoading ? (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+              {[1, 2, 3].map((idx) => (
+                <div key={idx} className="aspect-[3/4] w-full bg-border-soft animate-pulse" />
+              ))}
+            </div>
+          ) : categories.length > 0 ? (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+              {categories.map((cat) => (
+                <Link
+                  key={cat.id}
+                  href={APP_ROUTES.CATEGORY(cat.slug)}
+                  className="group relative aspect-[3/4] w-full bg-surface border border-border-base hover:border-primary-medium/40 transition-all duration-300 flex flex-col justify-end p-6 overflow-hidden"
+                >
+                  {cat.imageUrl ? (
+                    <div className="absolute inset-0">
+                      <Image
+                        src={cat.imageUrl}
+                        alt={cat.name}
+                        fill
+                        className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                        sizes="(max-width: 640px) 100vw, 33vw"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
+                    </div>
+                  ) : (
+                    <div className="absolute inset-0 bg-green-light/40 group-hover:bg-green-light/60 transition-colors" />
+                  )}
+
+                  <div className="relative z-10 flex flex-col gap-2">
+                    <h3 className={`font-serif text-xl font-normal uppercase tracking-wider ${
+                      cat.imageUrl ? "text-white" : "text-text-base"
+                    }`}>
+                      {cat.name}
+                    </h3>
+                    <span className={`text-[9px] font-bold uppercase tracking-widest transition-colors inline-flex items-center gap-1 ${
+                      cat.imageUrl ? "text-accent" : "text-text-secondary group-hover:text-primary"
+                    }`}>
+                      Explore Category &rarr;
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="p-8 text-center border border-border-base bg-surface text-xs text-text-muted">
+              Collections will appear here soon.
+            </div>
+          )}
+        </div>
+      </PageContainer>
+
+      {/* 3. Featured / New Arrivals Showcase */}
       <PageContainer>
-        <div className="max-w-2xl mx-auto text-center flex flex-col gap-6 items-center">
-          <span className="text-[9px] font-semibold uppercase tracking-[0.25em] text-text-secondary">
-            Stay Connected
-          </span>
-          <h2 className="font-serif text-2xl md:text-3xl font-normal uppercase tracking-widest text-text-base">
-            The Aura Journal
-          </h2>
-          <p className="text-xs text-text-secondary leading-relaxed max-w-md">
-            Subscribe to receive editorial campaign launch notifications, private collection
-            previews, and studio notes.
-          </p>
+        <div className="flex flex-col gap-8">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border-soft pb-4">
+            <div className="flex flex-col gap-1">
+              <span className="text-[9px] font-semibold uppercase tracking-[0.25em] text-text-secondary">
+                Seasonal Selects
+              </span>
+              <h2 className="font-serif text-2xl font-normal uppercase tracking-widest text-text-base">
+                New Arrivals
+              </h2>
+            </div>
+            <Link
+              href={APP_ROUTES.PRODUCTS}
+              className="text-xs font-semibold uppercase tracking-wider text-primary hover:underline inline-flex items-center gap-1"
+            >
+              View All Products &rarr;
+            </Link>
+          </div>
 
-          <form className="flex flex-col sm:flex-row gap-3 w-full mt-4 justify-center items-stretch">
-            <Input
-              type="email"
-              placeholder="ENTER YOUR EMAIL"
-              className="min-w-[280px]"
-              aria-label="Email address for newsletter sign-up"
-              required
-            />
-            <Button variant="primary" type="submit" size="md">
-              Subscribe
-            </Button>
-          </form>
+          {productsLoading ? (
+            <div className="grid grid-cols-2 gap-4 sm:gap-6 sm:grid-cols-3 lg:grid-cols-4">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                <ProductCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : productsError ? (
+            <div className="p-8 text-center border border-border-base bg-surface text-xs text-danger">
+              {productsError}
+            </div>
+          ) : products.length > 0 ? (
+            <div className="grid grid-cols-2 gap-4 sm:gap-6 sm:grid-cols-3 lg:grid-cols-4">
+              {products.map((product, idx) => (
+                <ProductCard key={product.id} product={product} priority={idx < 4} />
+              ))}
+            </div>
+          ) : (
+            <div className="p-8 text-center border border-border-base bg-surface text-xs text-text-muted">
+              New products will be added shortly.
+            </div>
+          )}
+        </div>
+      </PageContainer>
+
+      {/* 4. Brand Values & Heritage Section */}
+      <PageContainer>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-border-soft">
+          <div className="border border-border-base bg-surface p-6 flex flex-col gap-2">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
+              Ethical Sourcing
+            </span>
+            <h4 className="font-serif text-base font-normal uppercase text-text-base">
+              Pure Natural Fibers
+            </h4>
+            <p className="text-xs text-text-muted leading-relaxed">
+              Every textile is conscientiously selected from certified mills, emphasizing breathable cottons and Mulberry silks.
+            </p>
+          </div>
+
+          <div className="border border-border-base bg-surface p-6 flex flex-col gap-2">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
+              Bespoke Quality
+            </span>
+            <h4 className="font-serif text-base font-normal uppercase text-text-base">
+              Artisan Craftsmanship
+            </h4>
+            <p className="text-xs text-text-muted leading-relaxed">
+              Meticulous tailoring, durable double-stitch seams, and subtle hand-finished accents designed to endure seasons.
+            </p>
+          </div>
+
+          <div className="border border-border-base bg-surface p-6 flex flex-col gap-2">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
+              Reliable Delivery
+            </span>
+            <h4 className="font-serif text-base font-normal uppercase text-text-base">
+              Seamless Pan-India Dispatch
+            </h4>
+            <p className="text-xs text-text-muted leading-relaxed">
+              Express, tracked shipments dispatched directly from our studio, with Cash on Delivery and encrypted online payment.
+            </p>
+          </div>
         </div>
       </PageContainer>
     </div>
