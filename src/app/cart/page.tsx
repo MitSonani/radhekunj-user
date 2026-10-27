@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { PageContainer } from '@/components/layout';
@@ -346,12 +346,7 @@ export default function CartPage() {
   const [clearError, setClearError] = useState<string | null>(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !localStorage.getItem('auth_token')) {
-      router.replace(`/login?redirect=${encodeURIComponent(APP_ROUTES.CART)}`);
-    }
-  }, [router]);
+  // Guests can freely view and modify their cart
 
   const handleClearCart = async () => {
     if (!showClearConfirm) {
@@ -569,7 +564,13 @@ export default function CartPage() {
               size="lg"
               className="w-full justify-center"
               disabled={hasUnavailableItems || isLoading}
-              onClick={() => router.push(APP_ROUTES.CHECKOUT)}
+              onClick={() => {
+                if (typeof window !== "undefined" && !localStorage.getItem("auth_token")) {
+                  router.push(`/login?redirect=${encodeURIComponent(APP_ROUTES.CHECKOUT)}`);
+                } else {
+                  router.push(APP_ROUTES.CHECKOUT);
+                }
+              }}
             >
               Continue to Checkout
             </Button>

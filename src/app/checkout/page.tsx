@@ -95,6 +95,13 @@ export default function CheckoutPage() {
   // Local state for address selection override
   const [selectedAddressIdOverride, setSelectedAddressIdOverride] = useState<string | null>(null);
 
+  // COD Eligibility state
+  const [codEligibility, setCodEligibility] = useState<{
+    isEligible: boolean;
+    reason?: string;
+    maxOrderValue?: number;
+  }>({ isEligible: true });
+
   // Derive effective selected address (override or default address)
   const defaultAddress = addresses.find((a) => a.isDefault) ?? addresses[0];
   const selectedAddressId = selectedAddressIdOverride ?? defaultAddress?.id ?? null;
@@ -131,6 +138,37 @@ export default function CheckoutPage() {
   useEffect(() => {
     loadRazorpayScript();
   }, []);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (typeof window !== "undefined" && !localStorage.getItem("auth_token")) {
+      router.replace(`/login?redirect=${encodeURIComponent(APP_ROUTES.CHECKOUT)}`);
+    }
+  }, [router]);
+
+  // Selected address object for postal code check
+  const selectedAddress = addresses.find((a) => a.id === selectedAddressId) ?? defaultAddress;
+
+  // Re-check COD eligibility whenever total amount or address changes
+  useEffect(() => {
+    if (!cart) return;
+    const totalAmount = cart.finalSubtotal || cart.subtotal;
+    const postalCode = selectedAddress?.postalCode;
+
+    ordersService
+      .checkCodEligibility({ amount: totalAmount, postalCode })
+      .then((res) => {
+        if (res.data) {
+          setCodEligibility(res.data);
+          if (!res.data.isEligible && selectedPaymentMethod === "COD") {
+            setSelectedPaymentMethod("RAZORPAY");
+          }
+        }
+      })
+      .catch(() => {
+        // preserve current eligibility on network hiccup
+      });
+  }, [cart, selectedAddress?.postalCode, selectedPaymentMethod]);
 
   // Redirect to cart if empty
   useEffect(() => {
@@ -549,11 +587,17 @@ export default function CheckoutPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Cash on Delivery (COD) Card */}
                 <div
-                  onClick={() => setSelectedPaymentMethod("COD")}
-                  className={`cursor-pointer border p-5 transition-all flex flex-col justify-between ${
-                    selectedPaymentMethod === "COD"
-                      ? "border-primary bg-primary/5 ring-1 ring-primary"
-                      : "border-border-soft bg-surface hover:border-border-base"
+                  onClick={() => {
+                    if (codEligibility.isEligible) {
+                      setSelectedPaymentMethod("COD");
+                    }
+                  }}
+                  className={`border p-5 transition-all flex flex-col justify-between ${
+                    !codEligibility.isEligible
+                      ? "opacity-60 bg-bg-soft/70 border-border-soft cursor-not-allowed"
+                      : selectedPaymentMethod === "COD"
+                      ? "cursor-pointer border-primary bg-primary/5 ring-1 ring-primary"
+                      : "cursor-pointer border-border-soft bg-surface hover:border-border-base"
                   }`}
                 >
                   <div>
@@ -563,12 +607,14 @@ export default function CheckoutPage() {
                       </span>
                       <div
                         className={`flex h-4 w-4 items-center justify-center rounded-full border ${
-                          selectedPaymentMethod === "COD"
+                          !codEligibility.isEligible
+                            ? "border-border-soft bg-border-soft"
+                            : selectedPaymentMethod === "COD"
                             ? "border-primary bg-primary text-white"
                             : "border-border-base"
                         }`}
                       >
-                        {selectedPaymentMethod === "COD" && (
+                        {selectedPaymentMethod === "COD" && codEligibility.isEligible && (
                           <div className="h-1.5 w-1.5 rounded-full bg-white" />
                         )}
                       </div>
@@ -577,9 +623,16 @@ export default function CheckoutPage() {
                       Pay with cash upon delivery of your order to your shipping address.
                     </p>
                   </div>
-                  <span className="mt-4 text-[9px] uppercase tracking-wider font-semibold text-text-muted">
-                    No advance online transaction needed
-                  </span>
+
+                  {!codEligibility.isEligible ? (
+                    <div className="mt-4 rounded bg-warning/10 border border-warning/30 p-2 text-[10px] text-text-base font-medium">
+                      ⚠️ {codEligibility.reason || "Cash on Delivery is unavailable for this order."}
+                    </div>
+                  ) : (
+                    <span className="mt-4 text-[9px] uppercase tracking-wider font-semibold text-text-muted">
+                      No advance online transaction needed
+                    </span>
+                  )}
                 </div>
 
                 {/* Razorpay Online Card */}
@@ -765,7 +818,8 @@ export default function CheckoutPage() {
                   isCartLoading ||
                   !selectedAddressId ||
                   hasUnavailableItems ||
-                  isAddingAddress
+                  isAddingAddress ||
+                  (selectedPaymentMethod === "COD" && !codEligibility.isEligible)
                 }
               >
                 {isPlacingOrder

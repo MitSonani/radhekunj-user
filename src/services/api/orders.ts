@@ -6,6 +6,12 @@ import type {
   GetOrdersParams,
 } from '@/types/orders';
 
+export interface CodEligibilityResponse {
+  isEligible: boolean;
+  reason?: string;
+  maxOrderValue?: number;
+}
+
 /**
  * Service for the authenticated Order & Checkout API.
  * All endpoints require a valid JWT (sent automatically by apiClient via localStorage).
@@ -26,4 +32,9 @@ export const ordersService = {
 
   getOrderById: (id: string) =>
     apiClient.get<OrderApiResponse>(`/orders/${id}`),
+
+  checkCodEligibility: (params: { amount?: string | number; postalCode?: string }) =>
+    apiClient.get<{ success: boolean; data: CodEligibilityResponse }>('/orders/cod-eligibility', {
+      params,
+    }),
 };

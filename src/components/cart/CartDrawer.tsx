@@ -242,7 +242,11 @@ export function CartDrawer() {
 
   const handleCheckout = () => {
     closeDrawer();
-    router.push(APP_ROUTES.CHECKOUT);
+    if (typeof window !== "undefined" && !localStorage.getItem("auth_token")) {
+      router.push(`/login?redirect=${encodeURIComponent(APP_ROUTES.CHECKOUT)}`);
+    } else {
+      router.push(APP_ROUTES.CHECKOUT);
+    }
   };
 
   const handleViewBag = () => {

@@ -6,6 +6,7 @@ import {
   PublicProductDetail,
   ListProductsParams,
   PublicCategoryItem,
+  FilterOptionsResponse,
 } from '@/types/api';
 
 export interface ListCategoriesParams {
@@ -26,6 +27,11 @@ export const catalogService = {
     if (params?.search) query.search = params.search;
     if (params?.categorySlug) query.categorySlug = params.categorySlug;
     if (params?.sort) query.sort = params.sort;
+    if (params?.minPrice !== undefined) query.minPrice = params.minPrice;
+    if (params?.maxPrice !== undefined) query.maxPrice = params.maxPrice;
+    if (params?.color) query.color = params.color;
+    if (params?.size) query.size = params.size;
+    if (params?.inStock !== undefined) query.inStock = params.inStock;
 
     return apiClient.get<CatalogListResponse<PublicProductListItem>>('/products', {
       params: Object.keys(query).length ? query : undefined,
@@ -45,6 +51,9 @@ export const catalogService = {
 
   getProduct: (slug: string) =>
     apiClient.get<CatalogDetailResponse<PublicProductDetail>>(`/products/${encodeURIComponent(slug)}`),
+
+  getFilterOptions: () =>
+    apiClient.get<{ success: boolean; data: FilterOptionsResponse }>('/products/filters'),
 };
 
 export type { PublicCategoryItem };

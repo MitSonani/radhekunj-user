@@ -4,12 +4,14 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { PageContainer } from "@/components/layout";
-import { Button } from "@/components/common";
+import { HeroBanner } from "@/components/home/HeroBanner";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductCardSkeleton } from "@/components/product/ProductCardSkeleton";
 import {
   catalogService,
+  bannerService,
   type PublicCategoryItem,
+  type PublicBannerItem,
 } from "@/services/api";
 import type { PublicProductListItem } from "@/types/api";
 import { APP_ROUTES } from "@/constants";
@@ -20,9 +22,20 @@ export default function Home() {
   const [products, setProducts] = useState<PublicProductListItem[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
   const [productsError, setProductsError] = useState<string | null>(null);
+  const [banners, setBanners] = useState<PublicBannerItem[]>([]);
 
   useEffect(() => {
     let isMounted = true;
+
+    // Load active homepage hero banners
+    bannerService
+      .getActiveBanners()
+      .then((res) => {
+        if (isMounted && res.data) {
+          setBanners(res.data);
+        }
+      })
+      .catch(() => {});
 
     // Load featured categories
     catalogService
@@ -62,36 +75,7 @@ export default function Home() {
     <div className="flex flex-col gap-20 py-10 md:py-16 transition-colors duration-200">
       {/* 1. Campaign Hero Section */}
       <PageContainer>
-        <div className="relative w-full h-[65vh] min-h-[460px] bg-green-light border border-border-base flex flex-col justify-end p-8 md:p-16 overflow-hidden shadow-xs">
-          {/* Subtle brand soft green radial background overlay */}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-green-soft/30 via-transparent to-transparent pointer-events-none" />
-
-          <div className="relative z-10 max-w-xl flex flex-col gap-4 items-start animate-fade-in">
-            {/* Premium Gold badge accent */}
-            <span className="inline-flex items-center gap-1.5 rounded-none bg-accent/15 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.25em] text-accent">
-              <span className="h-1.5 w-1.5 bg-accent rounded-full animate-pulse" />
-              Artisan Heritage Edit
-            </span>
-            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-normal leading-[1.1] text-text-base uppercase tracking-wide">
-              The Art of <br /> Quiet Luxury
-            </h1>
-            <p className="text-xs md:text-sm text-text-secondary leading-relaxed max-w-md">
-              Structured silhouettes, natural organic fabrics, and a neutral palette. Hand-tailored for conscious, timeless living.
-            </p>
-            <div className="flex flex-wrap items-center gap-3 mt-4">
-              <Link href={APP_ROUTES.PRODUCTS}>
-                <Button variant="primary" size="lg">
-                  Explore Collection
-                </Button>
-              </Link>
-              <Link href="/categories">
-                <Button variant="outline" size="lg">
-                  Shop by Category
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
+        <HeroBanner banner={banners[0]} />
       </PageContainer>
 
       {/* 2. Shop by Category / Curated Segments */}

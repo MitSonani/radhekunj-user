@@ -16,3 +16,5 @@ export { wishlistService } from './wishlist';
 export { addressService } from './address';
 export { ordersService } from './orders';
 export { paymentsService } from './payments';
+export { bannerService } from './banners';
+export type { PublicBannerItem, BannerListResponse } from './banners';

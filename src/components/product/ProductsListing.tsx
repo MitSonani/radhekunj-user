@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { PageContainer } from '@/components/layout';
 import { EmptyState, ErrorState } from '@/components/common';
 import { useProducts } from '@/hooks/useProducts';
-import { ProductSortOption } from '@/types/api';
+import { catalogService } from '@/services/api/catalog';
+import { ProductSortOption, FilterOptionsResponse } from '@/types/api';
 import { ProductGrid } from './ProductGrid';
 import { ProductFilters } from './ProductFilters';
 import { ProductPagination } from './ProductPagination';
@@ -30,6 +31,28 @@ export function ProductsListing({ categorySlug, categoryName }: ProductsListingP
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
   const search = searchParams.get('search') || '';
   const sort = (searchParams.get('sort') || 'newest') as ProductSortOption;
+  const minPrice = searchParams.get('minPrice') || '';
+  const maxPrice = searchParams.get('maxPrice') || '';
+  const color = searchParams.get('color') || '';
+  const size = searchParams.get('size') || '';
+  const inStock = searchParams.get('inStock') === 'true';
+  const urlCategorySlug = searchParams.get('categorySlug') || '';
+
+  const effectiveCategorySlug = categorySlug || urlCategorySlug;
+
+  // Dynamic filter options state
+  const [filterOptions, setFilterOptions] = useState<FilterOptionsResponse | null>(null);
+
+  useEffect(() => {
+    catalogService
+      .getFilterOptions()
+      .then((res) => {
+        if (res.data) setFilterOptions(res.data);
+      })
+      .catch(() => {
+        // Soft fallback
+      });
+  }, []);
 
   const updateParams = useCallback(
     (updates: Record<string, string | null>) => {
@@ -50,14 +73,30 @@ export function ProductsListing({ categorySlug, categoryName }: ProductsListingP
     [searchParams, router, pathname],
   );
 
+  const clearAllFilters = useCallback(() => {
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (sort && sort !== 'newest') params.set('sort', sort);
+    if (categorySlug) params.set('categorySlug', categorySlug);
+    const qs = params.toString();
+    router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }, [search, sort, categorySlug, pathname, router]);
+
   const { products, pagination, isLoading, error, refetch } = useProducts({
     page,
     search: search || undefined,
-    categorySlug,
+    categorySlug: effectiveCategorySlug || undefined,
     sort,
+    minPrice: minPrice ? parseFloat(minPrice) : undefined,
+    maxPrice: maxPrice ? parseFloat(maxPrice) : undefined,
+    color: color || undefined,
+    size: size || undefined,
+    inStock: inStock ? true : undefined,
   });
 
-  const heading = categoryName || (categorySlug ? formatSlug(categorySlug) : 'All Products');
+  const heading = categoryName || (effectiveCategorySlug ? formatSlug(effectiveCategorySlug) : 'All Products');
+
+  const hasAnyFilter = Boolean(search || minPrice || maxPrice || color || size || inStock || (!categorySlug && urlCategorySlug));
 
   return (
     <div className="flex flex-col flex-grow bg-bg-base py-12 md:py-16">
@@ -65,7 +104,7 @@ export function ProductsListing({ categorySlug, categoryName }: ProductsListingP
         {/* Page heading */}
         <div className="mb-10 border-b border-border-base pb-6">
           <span className="text-[9px] font-semibold uppercase tracking-[0.3em] text-text-muted">
-            {categorySlug ? 'Category' : 'Collection'}
+            {effectiveCategorySlug ? 'Category' : 'Collection'}
           </span>
           <h1 className="font-serif text-3xl md:text-4xl font-normal uppercase tracking-widest text-text-base mt-2 leading-tight">
             {heading}
@@ -80,6 +119,16 @@ export function ProductsListing({ categorySlug, categoryName }: ProductsListingP
           onSortChange={(val) => updateParams({ sort: val })}
           totalCount={pagination?.total}
           className="mb-8"
+          filterOptions={filterOptions}
+          minPrice={minPrice}
+          maxPrice={maxPrice}
+          color={color}
+          size={size}
+          inStock={inStock}
+          categorySlug={effectiveCategorySlug}
+          isCategoryPage={Boolean(categorySlug)}
+          onFilterChange={updateParams}
+          onClearAllFilters={clearAllFilters}
         />
 
         {/* Error state */}
@@ -105,8 +154,8 @@ export function ProductsListing({ categorySlug, categoryName }: ProductsListingP
               <EmptyState
                 title="No products found"
                 description={
-                  search
-                    ? `No results for "${search}". Try a different search term.`
+                  hasAnyFilter
+                    ? 'No products match your active search and filter criteria. Try clearing some filters.'
                     : 'No products are available in this collection right now.'
                 }
                 icon={
@@ -124,8 +173,8 @@ export function ProductsListing({ categorySlug, categoryName }: ProductsListingP
                     />
                   </svg>
                 }
-                actionLabel={search ? 'Clear Search' : undefined}
-                onActionClick={search ? () => updateParams({ search: null }) : undefined}
+                actionLabel={hasAnyFilter ? 'Clear All Filters' : undefined}
+                onActionClick={hasAnyFilter ? clearAllFilters : undefined}
               />
             )}
 

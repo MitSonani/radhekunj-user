@@ -4,6 +4,7 @@ import type {
   AddToCartPayload,
   UpdateCartItemPayload,
   ApplyCouponPayload,
+  MergeCartPayload,
 } from '@/types/cart';
 
 /**
@@ -40,4 +41,7 @@ export const cartService = {
 
   removeCoupon: () =>
     apiClient.delete<CartApiResponse>('/cart/coupon'),
+
+  mergeCart: (payload: MergeCartPayload) =>
+    apiClient.post<CartApiResponse>('/cart/merge', payload),
 };

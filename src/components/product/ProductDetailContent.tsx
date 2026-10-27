@@ -3,11 +3,11 @@
 import React, { useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import { PageContainer } from '@/components/layout';
 import { Button, ErrorState, EmptyState, Toast } from '@/components/common';
 import { useProduct } from '@/hooks/useProduct';
 import { useCart } from '@/contexts/CartContext';
+import type { GuestCartItemMetadata } from '@/types/cart';
 import { ApiError } from '@/types/api';
 import { PublicVariant } from '@/types/api';
 import {
@@ -89,7 +89,6 @@ interface ProductDetailContentProps {
 export function ProductDetailContent({ slug }: ProductDetailContentProps) {
   const { product, isLoading, error, notFound, refetch } = useProduct(slug);
   const { addToCart, isAddingToCart } = useCart();
-  const router = useRouter();
 
   const [selectedAttributes, setSelectedAttributes] = useState<
     Record<string, string>
@@ -158,17 +157,55 @@ export function ProductDetailContent({ slug }: ProductDetailContentProps) {
   else if (isOutOfStock) bagButtonLabel = 'Out of Stock';
 
   const handleAddToBag = useCallback(async () => {
-    if (!canAddToBag || !selectedVariant) return;
-
-    // Check authentication — redirect to login preserving return URL
-    if (typeof window !== 'undefined' && !localStorage.getItem('auth_token')) {
-      router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
-      return;
-    }
+    if (!canAddToBag || !selectedVariant || !product) return;
 
     setAddError(null);
     try {
-      await addToCart(selectedVariant.id, 1);
+      // Find representative image for the selected variant or product primary image
+      const primaryImage =
+        product.images.find(
+          (img) =>
+            img.attributeValueId &&
+            selectedVariant.attributes.some(
+              (a) => a.attributeValue.id === img.attributeValueId,
+            ),
+        ) ||
+        product.images[0] ||
+        null;
+
+      const metadata: GuestCartItemMetadata = {
+        productName: product.name,
+        productSlug: product.slug,
+        sku: selectedVariant.id,
+        price: selectedVariant.price,
+        compareAtPrice: selectedVariant.compareAtPrice,
+        attributes: selectedVariant.attributes.map((a) => ({
+          id: a.attribute.id,
+          attributeValueId: a.attributeValue.id,
+          attributeValue: {
+            id: a.attributeValue.id,
+            attributeId: a.attribute.id,
+            value: a.attributeValue.value,
+            slug: a.attributeValue.slug,
+            colorCode: a.attributeValue.colorCode,
+            attribute: {
+              id: a.attribute.id,
+              name: a.attribute.name,
+              slug: a.attribute.slug,
+            },
+          },
+        })),
+        image: primaryImage
+          ? {
+              id: primaryImage.id,
+              imageUrl: primaryImage.url,
+              altText: primaryImage.altText,
+              isPrimary: true,
+            }
+          : null,
+      };
+
+      await addToCart(selectedVariant.id, 1, metadata);
       // Cart drawer opens automatically on success (inside CartContext)
     } catch (err) {
       const message =
@@ -177,7 +214,7 @@ export function ProductDetailContent({ slug }: ProductDetailContentProps) {
           : 'Failed to add to bag. Please try again.';
       setAddError(message);
     }
-  }, [canAddToBag, selectedVariant, addToCart, router]);
+  }, [canAddToBag, selectedVariant, product, addToCart]);
 
   // ── Loading / error states ────────────────────────────────────────────────────
   if (isLoading) return <ProductDetailSkeleton />;

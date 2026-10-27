@@ -103,12 +103,24 @@ export interface PublicProductDetail {
 
 export type ProductSortOption = 'newest' | 'price_asc' | 'price_desc';
 
+export interface FilterOptionsResponse {
+  categories: Array<{ id: string; name: string; slug: string }>;
+  colors: Array<{ id: string; value: string; slug: string; colorCode: string | null }>;
+  sizes: Array<{ id: string; value: string; slug: string }>;
+  priceRange: { min: number; max: number };
+}
+
 export interface ListProductsParams {
   page?: number;
   limit?: number;
   search?: string;
   categorySlug?: string;
   sort?: ProductSortOption;
+  minPrice?: number;
+  maxPrice?: number;
+  color?: string;
+  size?: string;
+  inStock?: boolean;
 }
 
 // ─── Generic API types ────────────────────────────────────────────────────────

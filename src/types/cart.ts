@@ -109,3 +109,35 @@ export interface UpdateCartItemPayload {
 export interface ApplyCouponPayload {
   code: string;
 }
+
+export interface MergeCartPayload {
+  items: Array<{
+    variantId: string;
+    quantity: number;
+  }>;
+}
+
+export interface GuestCartItemMetadata {
+  productName: string;
+  productSlug?: string;
+  sku: string;
+  price: string;
+  compareAtPrice: string | null;
+  attributes: CartItemAttribute[];
+  image: CartItemImage;
+}
+
+export interface GuestCartItem {
+  id: string;
+  variantId: string;
+  quantity: number;
+  variant: CartItemVariant;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GuestCartStorage {
+  version: 1;
+  items: GuestCartItem[];
+  updatedAt: string;
+}

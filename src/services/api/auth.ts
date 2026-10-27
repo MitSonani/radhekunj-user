@@ -20,6 +20,9 @@ export interface UserRole {
 export interface UserProfile {
   id: string;
   name: string;
+  countryCode?: string;
+  mobileNumber?: string;
+  status?: string;
   role: UserRole | null;
 }
 
@@ -51,4 +54,16 @@ export const authService = {
    */
   verifyOtp: (payload: VerifyOtpPayload) =>
     apiClient.post<BaseApiResponse<AuthResponseData>>('/auth/otp/verify', payload),
+
+  /**
+   * Fetches the current authenticated user profile.
+   */
+  getProfile: () =>
+    apiClient.get<BaseApiResponse<UserProfile>>('/auth/me'),
+
+  /**
+   * Updates customer profile fields (e.g. name).
+   */
+  updateProfile: (payload: { name: string }) =>
+    apiClient.patch<BaseApiResponse<UserProfile>>('/auth/profile', payload),
 };
