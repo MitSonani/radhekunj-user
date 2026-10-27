@@ -1,10 +1,11 @@
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { PageContainer } from './PageContainer';
 import { APP_ROUTES } from '@/constants';
 
 /**
- * Shared Footer component for the AURA storefront.
+ * Shared Footer component for the Cotton Clique storefront.
  * Redesigned in premium Dark Green (#0F3326) with cream text.
  */
 export function Footer() {
@@ -16,9 +17,20 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
           {/* Brand Info */}
           <div className="space-y-4">
-            <span className="font-serif text-xl font-normal uppercase tracking-[0.25em] text-bg-base">
-              Aura
-            </span>
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded bg-bg-base/95 p-1 flex items-center justify-center overflow-hidden">
+                <Image
+                  src="/brand/cotton-clique-logo.jpg"
+                  alt="Cotton Clique"
+                  width={36}
+                  height={36}
+                  className="h-full w-full object-contain mix-blend-multiply"
+                />
+              </div>
+              <span className="font-serif text-xl font-normal uppercase tracking-[0.25em] text-bg-base">
+                Cotton Clique
+              </span>
+            </div>
             <p className="text-xs text-green-soft/80 leading-relaxed max-w-xs">
               A curated space for the modern wardrobe. Designed for slow living, quiet luxury, and
               sustainable style.
@@ -58,11 +70,11 @@ export function Footer() {
             <ul className="mt-4 space-y-3">
               <li>
                 <span className="text-xs text-green-soft/80 block">
-                  Support: concierge@aura.example.com
+                  Support: concierge@cottonclique.example.com
                 </span>
               </li>
               <li>
-                <span className="text-xs text-green-soft/80 block">Phone: 1-800-MY-AURA</span>
+                <span className="text-xs text-green-soft/80 block">Inquiries: Mon–Sat 10:00–18:00 IST</span>
               </li>
             </ul>
           </div>
@@ -71,7 +83,7 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="mt-12 border-t border-primary-medium/35 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-[10px] uppercase tracking-[0.1em] text-green-soft/60">
-            &copy; {currentYear} Aura Studio. All rights reserved.
+            &copy; {currentYear} Cotton Clique. All rights reserved.
           </p>
           <div className="flex gap-6">
             <span className="text-[10px] uppercase tracking-[0.1em] text-green-soft/60 hover:text-bg-base cursor-pointer transition-colors">

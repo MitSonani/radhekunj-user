@@ -158,7 +158,7 @@ function VerifyContent() {
         setApiSuccess('A fresh code is on its way.');
 
         if (response.data?.otp) {
-          console.log(`[AURA DEV NOTICE] Resent OTP for testing: ${response.data.otp}`);
+          console.log(`[COTTON CLIQUE DEV NOTICE] Resent OTP for testing: ${response.data.otp}`);
         }
       } else {
         setApiError(response.message || 'Failed to resend code');

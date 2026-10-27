@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCart } from '@/contexts/CartContext';
@@ -10,7 +11,7 @@ import { APP_ROUTES } from '@/constants';
 import { cn } from '@/lib/utils';
 
 /**
- * Shared Header component for the AURA storefront.
+ * Shared Header component for the Cotton Clique storefront.
  * Aligned with the green-and-cream premium branding.
  */
 export function Header() {
@@ -54,14 +55,24 @@ export function Header() {
     <header className="sticky top-0 z-40 w-full border-b border-border-base bg-bg-base/85 backdrop-blur-md transition-colors duration-200">
       <PageContainer>
         <div className="flex h-20 items-center justify-between">
-          {/* Logo / Brand Name - Serif styled in Primary Green */}
+          {/* Logo / Brand Name - Cotton Clique */}
           <div className="flex-shrink-0">
             <Link
               href={APP_ROUTES.HOME}
-              className="font-serif text-2xl font-normal uppercase tracking-[0.25em] text-primary transition-colors hover:text-primary-dark focus-visible:outline-none rounded"
-              aria-label="AURA Home"
+              className="flex items-center gap-3 focus-visible:outline-none rounded py-1 group"
+              aria-label="Cotton Clique Home"
             >
-              Aura
+              <Image
+                src="/brand/cotton-clique-logo.jpg"
+                alt="Cotton Clique Logo"
+                width={52}
+                height={52}
+                priority
+                className="h-12 w-12 object-contain mix-blend-multiply transition-transform duration-200 group-hover:scale-105"
+              />
+              <span className="font-serif text-xl sm:text-2xl font-normal uppercase tracking-[0.2em] text-primary transition-colors group-hover:text-primary-dark">
+                Cotton Clique
+              </span>
             </Link>
           </div>
 

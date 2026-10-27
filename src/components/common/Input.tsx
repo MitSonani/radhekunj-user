@@ -11,7 +11,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 }
 
 /**
- * Reusable Input component aligned with AURA's premium green brand system.
+ * Reusable Input component aligned with Cotton Clique's premium green brand system.
  * Features sharp edges (rounded-none), clean thin border transitions, and uppercase label text.
  */
 export const Input = forwardRef<HTMLInputElement, InputProps>(

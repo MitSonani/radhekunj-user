@@ -22,9 +22,19 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: 'AURA - Modern Premium Fashion Storefront',
+  title: {
+    default: 'Cotton Clique',
+    template: '%s · Cotton Clique',
+  },
   description:
-    'A refined customer-facing portal for online fashion and accessories. Built with Next.js and Tailwind CSS.',
+    'A refined customer-facing portal for online fashion and wardrobe essentials. Built with Next.js and Tailwind CSS.',
+  openGraph: {
+    title: 'Cotton Clique',
+    siteName: 'Cotton Clique',
+    description:
+      'A refined customer-facing portal for online fashion and wardrobe essentials.',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({

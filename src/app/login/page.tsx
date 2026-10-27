@@ -50,7 +50,7 @@ function LoginContent() {
 
       if (response.success) {
         if (response.data?.otp) {
-          console.log(`[AURA DEV NOTICE] Generated OTP for testing: ${response.data.otp}`);
+          console.log(`[COTTON CLIQUE DEV NOTICE] Generated OTP for testing: ${response.data.otp}`);
         }
 
         // If the number is not registered, show a toast then redirect to signup
@@ -199,7 +199,7 @@ function LoginContent() {
         {/* Create account link */}
         <div className="text-center pt-1">
           <p className="text-[10px] text-text-muted uppercase tracking-[0.12em]">
-            New to Aura?{' '}
+            New to Cotton Clique?{' '}
             <Link
               href="/signup"
               className="text-text-base font-semibold hover:text-primary transition-colors underline-offset-4 hover:underline focus-visible:outline-none"

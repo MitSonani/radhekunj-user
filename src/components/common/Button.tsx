@@ -8,7 +8,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 /**
- * Reusable Button component aligned with AURA's premium green brand system.
+ * Reusable Button component aligned with Cotton Clique's premium green brand system.
  * Features sharp corners (rounded-none), uppercase tracked text, and custom brand inversions.
  */
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(

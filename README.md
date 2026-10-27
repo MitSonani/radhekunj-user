@@ -1,6 +1,6 @@
-# ShopFront — User Panel
+# Cotton Clique — User Storefront
 
-ShopFront is the customer-facing frontend user interface for a production e-commerce application. It handles product browsing, cart interactions, checkout flows, order history, and account profile management by consuming REST API endpoints from the central Backend service.
+Cotton Clique is the customer-facing frontend user interface for the e-commerce application. It handles product browsing, cart interactions, checkout flows, order history, and account profile management by consuming REST API endpoints from the central Backend service.
 
 ## Technology Stack
 

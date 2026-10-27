@@ -85,7 +85,7 @@ function SignupContent() {
         });
 
         if (response.data?.otp) {
-          console.log(`[AURA DEV NOTICE] Generated OTP for testing: ${response.data.otp}`);
+          console.log(`[COTTON CLIQUE DEV NOTICE] Generated OTP for testing: ${response.data.otp}`);
         }
 
         router.push(`/verify?${queryParams.toString()}`);

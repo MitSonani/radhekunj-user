@@ -12,7 +12,7 @@ export interface ToastProps {
 }
 
 /**
- * Minimal inline toast notification aligned with the AURA brand system.
+ * Minimal inline toast notification aligned with the Cotton Clique brand system.
  * Fades in from the bottom-center of the viewport.
  */
 export function Toast({ message, type = 'info', duration = 3000, onDismiss }: ToastProps) {

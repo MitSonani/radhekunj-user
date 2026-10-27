@@ -64,7 +64,7 @@ export interface CountryCodeSelectProps {
 }
 
 /**
- * Minimal country code dropdown aligned with the AURA fashion form aesthetic.
+ * Minimal country code dropdown aligned with the Cotton Clique fashion form aesthetic.
  * Uses a native <select> for accessibility and mobile compatibility.
  */
 export function CountryCodeSelect({

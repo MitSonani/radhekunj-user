@@ -176,7 +176,7 @@ export function OrderDetailContent({ id }: OrderDetailContentProps) {
         key: razorpayPayload.keyId,
         amount: razorpayPayload.amount,
         currency: razorpayPayload.currency,
-        name: "Radhe Kunj",
+        name: "Cotton Clique",
         description: `Order #${order.orderNumber}`,
         order_id: razorpayPayload.razorpayOrderId,
         prefill: {
