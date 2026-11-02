@@ -11,59 +11,37 @@ import { cartService } from '@/services/api/cart';
 import { ApiError } from '@/types/api';
 import type {
   Cart,
-  CartItem,
   GuestCartItem,
   GuestCartItemMetadata,
   GuestCartStorage,
 } from '@/types/cart';
 
-const GUEST_CART_KEY = 'radhekunj_guest_cart_v1';
+import {
+  CURRENT_GUEST_CART_KEY,
+  LEGACY_GUEST_CART_KEY,
+  type StorageLike,
+  mergeGuestCartItems,
+  migrateAndGetGuestCartStorage,
+  saveGuestCartStorage,
+  clearGuestCartStorage,
+  buildCartFromGuestItems,
+} from '@/lib/cartStorage';
+
+export {
+  CURRENT_GUEST_CART_KEY,
+  LEGACY_GUEST_CART_KEY,
+  type StorageLike,
+  mergeGuestCartItems,
+  migrateAndGetGuestCartStorage,
+  saveGuestCartStorage,
+  clearGuestCartStorage,
+  buildCartFromGuestItems,
+};
 
 function getGuestCartStorage(): GuestCartStorage {
-  if (typeof window === 'undefined') {
-    return { version: 1, items: [], updatedAt: new Date().toISOString() };
-  }
-  try {
-    const raw = localStorage.getItem(GUEST_CART_KEY);
-    if (!raw) return { version: 1, items: [], updatedAt: new Date().toISOString() };
-    const parsed = JSON.parse(raw) as GuestCartStorage;
-    if (parsed && parsed.version === 1 && Array.isArray(parsed.items)) {
-      return parsed;
-    }
-    return { version: 1, items: [], updatedAt: new Date().toISOString() };
-  } catch {
-    return { version: 1, items: [], updatedAt: new Date().toISOString() };
-  }
+  return migrateAndGetGuestCartStorage();
 }
 
-function saveGuestCartStorage(storage: GuestCartStorage): void {
-  if (typeof window === 'undefined') return;
-  try {
-    localStorage.setItem(GUEST_CART_KEY, JSON.stringify(storage));
-  } catch {
-    // Ignore storage quota errors
-  }
-}
-
-function buildCartFromGuestItems(items: GuestCartItem[]): Cart {
-  const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
-  const subtotalNum = items.reduce(
-    (sum, item) => sum + (parseFloat(item.variant?.price || '0') * item.quantity),
-    0,
-  );
-  const subtotal = subtotalNum.toFixed(2);
-
-  return {
-    id: 'guest-cart',
-    items: items as unknown as CartItem[],
-    itemsCount: items.length,
-    totalQuantity,
-    subtotal,
-    discountAmount: '0.00',
-    finalSubtotal: subtotal,
-    coupon: null,
-  };
-}
 
 // ── Context value shape ───────────────────────────────────────────────────────
 
@@ -170,7 +148,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (guestStorage.items.length > 0) {
         // Atomic one-time merge: immediately clear guest storage to prevent duplicate merge
         const itemsToMerge = [...guestStorage.items];
-        localStorage.removeItem(GUEST_CART_KEY);
+        clearGuestCartStorage();
 
         try {
           const mergeRes = await cartService.mergeCart({
@@ -358,9 +336,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const authToken = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
 
       if (!authToken) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem(GUEST_CART_KEY);
-        }
+        clearGuestCartStorage();
         setCart(null);
         return;
       }

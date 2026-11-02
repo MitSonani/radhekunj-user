@@ -75,4 +75,3 @@ src/
 1. **API Communications**: The User Panel must only communicate with the backend using the central `apiClient`. Direct database connections or logic redundancy (like recalculating prices or tax) are prohibited.
 2. **UI Consistency**: Reuse the design tokens and layout containers defined in `globals.css` and `components/`. Do not introduce styling fragments on individual views.
 3. **Accessibility (a11y)**: Use semantic HTML layout structures, label form inputs, and provide focus-visible rings for keyboard users.
-# radhekunj-user
