@@ -30,9 +30,6 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
                 className="h-16 w-16 object-contain mix-blend-multiply mx-auto"
               />
             </Link>
-            <span className="font-serif text-[11px] font-normal uppercase tracking-[0.35em] text-text-muted select-none">
-              Cotton Clique
-            </span>
             {title && (
               <h1 className="font-serif text-[2rem] font-normal uppercase tracking-widest text-text-base mt-1 leading-tight">
                 {title}

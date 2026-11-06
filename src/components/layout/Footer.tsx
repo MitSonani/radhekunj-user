@@ -17,7 +17,7 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
           {/* Brand Info */}
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center">
               <div className="h-10 w-10 rounded bg-bg-base/95 p-1 flex items-center justify-center overflow-hidden">
                 <Image
                   src="/brand/cotton-clique-logo.jpg"
@@ -27,9 +27,6 @@ export function Footer() {
                   className="h-full w-full object-contain mix-blend-multiply"
                 />
               </div>
-              <span className="font-serif text-xl font-normal uppercase tracking-[0.25em] text-bg-base">
-                Cotton Clique
-              </span>
             </div>
             <p className="text-xs text-green-soft/80 leading-relaxed max-w-xs">
               A curated space for the modern wardrobe. Designed for slow living, quiet luxury, and

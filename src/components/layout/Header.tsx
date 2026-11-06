@@ -83,11 +83,11 @@ export function Header() {
     <header className="sticky top-0 z-40 w-full border-b border-border-base bg-bg-base/85 backdrop-blur-md transition-colors duration-200">
       <PageContainer>
         <div className="flex h-20 items-center justify-between">
-          {/* Logo / Brand Name - Cotton Clique */}
+          {/* Logo - Cotton Clique */}
           <div className="shrink-0">
             <Link
               href={APP_ROUTES.HOME}
-              className="flex items-center gap-3 rounded py-1 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              className="flex items-center rounded py-1 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               aria-label="Cotton Clique Home"
             >
               <Image
@@ -98,9 +98,6 @@ export function Header() {
                 priority
                 className="h-10 w-10 sm:h-12 sm:w-12 object-contain mix-blend-multiply transition-transform duration-200 group-hover:scale-105 shrink-0"
               />
-              <span className="font-serif text-xl sm:text-2xl font-normal uppercase tracking-[0.2em] text-primary whitespace-nowrap transition-colors group-hover:text-primary-dark">
-                Cotton Clique
-              </span>
             </Link>
           </div>
 
