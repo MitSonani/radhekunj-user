@@ -22,12 +22,12 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
           <div className="flex flex-col items-center gap-3 text-center">
             <Link href="/" className="inline-block transition-opacity hover:opacity-90" aria-label="Cotton Clique Home">
               <Image
-                src="/brand/cotton-clique-logo.jpg"
+                src="/brand/cotton-clique-logo.png"
                 alt="Cotton Clique"
-                width={72}
-                height={72}
+                width={160}
+                height={120}
                 priority
-                className="h-16 w-16 object-contain mix-blend-multiply mx-auto"
+                className="h-20 w-auto object-contain mx-auto"
               />
             </Link>
             {title && (

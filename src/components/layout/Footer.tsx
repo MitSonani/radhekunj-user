@@ -18,15 +18,19 @@ export function Footer() {
           {/* Brand Info */}
           <div className="space-y-4">
             <div className="flex items-center">
-              <div className="h-10 w-10 rounded bg-bg-base/95 p-1 flex items-center justify-center overflow-hidden">
+              <Link
+                href={APP_ROUTES.HOME}
+                className="inline-flex items-center group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-soft rounded"
+                aria-label="Cotton Clique Home"
+              >
                 <Image
-                  src="/brand/cotton-clique-logo.jpg"
+                  src="/brand/cotton-clique-logo.png"
                   alt="Cotton Clique"
-                  width={36}
-                  height={36}
-                  className="h-full w-full object-contain mix-blend-multiply"
+                  width={140}
+                  height={100}
+                  className="h-14 w-auto sm:h-16 object-contain brightness-0 invert opacity-90 transition-opacity group-hover:opacity-100"
                 />
-              </div>
+              </Link>
             </div>
             <p className="text-xs text-green-soft/80 leading-relaxed max-w-xs">
               A curated space for the modern wardrobe. Designed for slow living, quiet luxury, and

@@ -91,12 +91,12 @@ export function Header() {
               aria-label="Cotton Clique Home"
             >
               <Image
-                src="/brand/cotton-clique-logo.jpg"
+                src="/brand/cotton-clique-logo.png"
                 alt="Cotton Clique Logo"
-                width={52}
-                height={52}
+                width={140}
+                height={100}
                 priority
-                className="h-10 w-10 sm:h-12 sm:w-12 object-contain mix-blend-multiply transition-transform duration-200 group-hover:scale-105 shrink-0"
+                className="h-12 w-auto sm:h-14 object-contain transition-transform duration-200 group-hover:scale-105 shrink-0"
               />
             </Link>
           </div>
