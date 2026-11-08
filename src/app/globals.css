@@ -1,6 +1,9 @@
 @import 'tailwindcss';
 
-:root {
+:root,
+html {
+  color-scheme: light;
+
   /* Cotton Clique Brand Premium Green & Warm Cream Color Tokens */
   --color-primary-base: #164a35;
   --color-primary-dark-base: #0f3326;
@@ -24,24 +27,6 @@
   --accent-base: #c49a5a; /* Premium Accent Gold */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0f3326; /* Dark Green for Dark Mode BG */
-    --foreground: #faf9f5; /* Light Cream Text for Dark Mode */
-
-    --card-bg: #164a35; /* Primary Green Card BG */
-    --card-border: #28624a; /* Medium Green Border */
-    --card-border-soft: #28624a;
-
-    --input-bg: #164a35;
-    --input-border: #28624a;
-    --input-focus: #faf9f5;
-
-    --muted-text: #ddebe3; /* Soft Green for Muted Text */
-    --secondary-text: #ddebe3;
-    --accent-base: #c49a5a;
-  }
-}
 
 @theme {
   /* Brand Typography & Grayscale palette overrides */
